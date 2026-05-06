@@ -784,25 +784,23 @@ export default function PremiumDashboardHomePage() {
               </div>
             </div>
 
-            {/* ПРАВАЯ ПОЛОВИНА (БАННЕР ПЛЕЙСХОЛДЕР) */}
+            {/* ПРАВАЯ ПОЛОВИНА (ГОТОВЫЙ БАННЕР) */}
             <div className="flex flex-col h-[400px] md:h-[500px]">
               <div className="flex items-center justify-between mb-6 border-b border-transparent pb-4 shrink-0 opacity-0 hidden md:flex">
                 <h2 className="text-xl font-black">Spacer</h2>
               </div>
               
-              {/* Контейнер баннера заполняет всю доступную высоту flex-1 */}
-              <div className="flex-1 w-full bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-dashed border-white/10 hover:border-[#8a60c2]/40 rounded-xl flex flex-col items-center justify-center backdrop-blur-md transition-all duration-300 group cursor-pointer relative overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-br from-[#8a60c2]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                 <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#8a60c2] group-hover:bg-[#8a60c2]/10 transition-all duration-300 mb-4 relative z-10 shadow-lg">
-                    <Plus className="w-6 h-6" />
-                 </div>
-                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors relative z-10">
-                   Katta Banner
-                 </span>
-                 <span className="text-[10px] text-gray-600 font-mono mt-2 relative z-10 group-hover:text-[#8a60c2]/70 transition-colors text-center px-4 max-w-xs">
-                   Bu yerda sizning gorizontal reklamangiz yoki maxsus rasm bo'lishi mumkin
-                 </span>
-              </div>
+              {/* Контейнер баннера с изображением banner.png */}
+              <a href="#" className="flex-1 w-full rounded-xl flex flex-col items-center justify-center transition-all duration-300 group cursor-pointer relative overflow-hidden border border-white/5 hover:border-[#8a60c2]/40 shadow-xl">
+                 <Image 
+                   src="/images/banner.png" 
+                   alt="Reklama Banneri" 
+                   fill 
+                   className="object-contain group-hover:scale-105 transition-transform duration-700 ease-out" 
+                   unoptimized 
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-50 group-hover:opacity-20 transition-opacity duration-500" />
+              </a>
             </div>
 
           </section>
