@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useCallback, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useCallback, memo, useEffect } from 'react';
+import { motion, AnimatePresence, useMotionValue, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
 import { 
   Play, ChevronRight, ChevronLeft,
   Search, X, BookOpen, MessageSquare, Headphones, MoreHorizontal, User, 
@@ -120,7 +120,6 @@ const reviews = [
   },
 ];
 
-// ОБНОВЛЕНО: добавлены правильные картинки новостей
 const news = [
   { id: 1, title: '«Jodugarlar jangi» 3-mavsumi 2026 yil kuzida chiqadi', preview: 'MAPPA studiyasi Culling Games arkini ekranlashtirish boshlanganini tasdiqladi. Reliz sanasi va birinchi treyler...', source: 'Anime News Network', time: '2 soat oldin', img: '/images/jjk.jpg' },
   { id: 2, title: 'O\'zbekistonda birinchi anime-festival: AniFest 2026 Toshkentda', preview: '20-22 iyun kunlari Toshkentda birinchi xalqaro anime festivali bo\'lib o\'tadi. Mehmonlar orasida...', source: 'KawaiiUZ', time: '5 soat oldin', img: '/images/anifest.jpg' },
@@ -128,7 +127,7 @@ const news = [
   { id: 4, title: 'Ufotable «Iblislar qotili» filmini e\'lon qildi', preview: 'Yangi to\'liq metrajli film mangadagi yakuniy jangni ekranlashtiradi. Premyera 2027 yilga...', source: 'Anime News Network', time: '12 soat oldin', img: '/images/kimetsu.jpg' },
 ];
 
-type RankType = 'bronze' | 'silver' | 'gold' | 'ascendant' | 'red' | 'purple';
+type RankType = 'wood' | 'iron' | 'gold' | 'emerald' | 'ruby' | 'amethyst';
 
 interface RankConfig {
   name: string;
@@ -140,43 +139,43 @@ interface RankConfig {
 }
 
 const rankConfigs: Record<RankType, RankConfig> = {
-  bronze: {
-    name: 'Bronza', color: 'text-amber-900', borderColor: 'border-amber-900/30', bgRank: 'bg-amber-900/10',
-    progressGradient: 'bg-gradient-to-r from-amber-950 to-amber-800', imgSrc: '/images/bronze.png',
+  wood: {
+    name: 'Wood', color: 'text-amber-900', borderColor: 'border-amber-900/30', bgRank: 'bg-amber-900/10',
+    progressGradient: 'bg-gradient-to-r from-amber-950 to-amber-800', imgSrc: '/images/wood.webp',
   },
-  silver: {
-    name: 'Kumush', color: 'text-gray-300', borderColor: 'border-gray-300/30', bgRank: 'bg-gray-300/10',
-    progressGradient: 'bg-gradient-to-r from-gray-400 to-gray-200', imgSrc: '/images/silver.png',
+  iron: {
+    name: 'Iron', color: 'text-gray-300', borderColor: 'border-gray-300/30', bgRank: 'bg-gray-300/10',
+    progressGradient: 'bg-gradient-to-r from-gray-400 to-gray-200', imgSrc: '/images/iron.webp',
   },
   gold: {
-    name: 'Oltin', color: 'text-yellow-400', borderColor: 'border-yellow-400/30', bgRank: 'bg-yellow-400/10',
-    progressGradient: 'bg-gradient-to-r from-yellow-400 to-amber-500', imgSrc: '/images/gold.png',
+    name: 'Gold', color: 'text-yellow-400', borderColor: 'border-yellow-400/30', bgRank: 'bg-yellow-400/10',
+    progressGradient: 'bg-gradient-to-r from-yellow-400 to-amber-500', imgSrc: '/images/gold.webp',
   },
-  ascendant: {
-    name: 'Ascendant', color: 'text-emerald-400', borderColor: 'border-emerald-400/30', bgRank: 'bg-emerald-400/10',
-    progressGradient: 'bg-gradient-to-r from-emerald-400 to-green-300', imgSrc: '/images/ascend.png',
+  emerald: {
+    name: 'Emerald', color: 'text-emerald-400', borderColor: 'border-emerald-400/30', bgRank: 'bg-emerald-400/10',
+    progressGradient: 'bg-gradient-to-r from-emerald-400 to-green-300', imgSrc: '/images/emerald.webp',
   },
-  red: {
-    name: 'Qizil', color: 'text-red-400', borderColor: 'border-red-400/30', bgRank: 'bg-red-400/10',
-    progressGradient: 'bg-gradient-to-r from-red-500 to-orange-500', imgSrc: '/images/high.png',
+  ruby: {
+    name: 'Ruby', color: 'text-red-400', borderColor: 'border-red-400/30', bgRank: 'bg-red-400/10',
+    progressGradient: 'bg-gradient-to-r from-red-500 to-orange-500', imgSrc: '/images/ruby.webp',
   },
-  purple: {
-    name: 'Afsonaviy', color: 'text-violet-400', borderColor: 'border-violet-400/30', bgRank: 'bg-violet-400/10',
-    progressGradient: 'bg-gradient-to-r from-violet-500 to-purple-400', imgSrc: '/images/top.png',
+  amethyst: {
+    name: 'Amethyst', color: 'text-violet-400', borderColor: 'border-violet-400/30', bgRank: 'bg-violet-400/10',
+    progressGradient: 'bg-gradient-to-r from-violet-500 to-purple-400', imgSrc: '/images/amethyst.webp',
   },
 };
 
 const topUsers = [
-  { id: 1, name: 'AnimeQiroli', points: 15420, level: 99, rank: 'purple' as RankType, avatar: '/images/1.jpg' },
-  { id: 2, name: 'Otaku_Uzz', points: 14200, level: 92, rank: 'red' as RankType, avatar: '/images/2.jpg' },
-  { id: 3, name: 'SenzuBean', points: 13850, level: 88, rank: 'red' as RankType, avatar: '/images/3.jpg' },
-  { id: 4, name: 'NinjaTash', points: 12100, level: 81, rank: 'ascendant' as RankType, avatar: '/images/4.jpg' },
-  { id: 5, name: 'GojoSensei', points: 11900, level: 79, rank: 'ascendant' as RankType, avatar: '/images/5.jpg' },
+  { id: 1, name: 'AnimeQiroli', points: 15420, level: 99, rank: 'amethyst' as RankType, avatar: '/images/1.jpg' },
+  { id: 2, name: 'Otaku_Uzz', points: 14200, level: 92, rank: 'ruby' as RankType, avatar: '/images/2.jpg' },
+  { id: 3, name: 'SenzuBean', points: 13850, level: 88, rank: 'ruby' as RankType, avatar: '/images/3.jpg' },
+  { id: 4, name: 'NinjaTash', points: 12100, level: 81, rank: 'emerald' as RankType, avatar: '/images/4.jpg' },
+  { id: 5, name: 'GojoSensei', points: 11900, level: 79, rank: 'emerald' as RankType, avatar: '/images/5.jpg' },
   { id: 6, name: 'BakaMitai', points: 10500, level: 74, rank: 'gold' as RankType, avatar: '/images/6.jpg' },
   { id: 7, name: 'Kawaii_Girl', points: 9800, level: 68, rank: 'gold' as RankType, avatar: '/images/7.jpg' },
-  { id: 8, name: 'Hokage123', points: 9200, level: 65, rank: 'silver' as RankType, avatar: '/images/8.jpg' },
-  { id: 9, name: 'SoloLeveler', points: 8900, level: 62, rank: 'silver' as RankType, avatar: '/images/9.jpg' },
-  { id: 10, name: 'ZoroLostAgain', points: 8500, level: 59, rank: 'bronze' as RankType, avatar: '/images/10.jpg' },
+  { id: 8, name: 'Hokage123', points: 9200, level: 65, rank: 'iron' as RankType, avatar: '/images/8.jpg' },
+  { id: 9, name: 'SoloLeveler', points: 8900, level: 62, rank: 'iron' as RankType, avatar: '/images/9.jpg' },
+  { id: 10, name: 'ZoroLostAgain', points: 8500, level: 59, rank: 'wood' as RankType, avatar: '/images/10.jpg' },
 ];
 
 const filterOptions = [
@@ -184,6 +183,77 @@ const filterOptions = [
   { key: 'hafta' as const, label: 'Hafta davomida' },
   { key: 'oy' as const, label: 'Oy davomida' },
 ];
+
+
+// ============================================================
+// ИНТЕРАКТИВНАЯ СЕТКА (Spotlight + Parallax Effect)
+// ============================================================
+const SpotlightGrid = () => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  // ПАРАЛЛАКС: при скролле от 0 до 2000px, сетка плавно сдвигается на 200px вверх
+  const { scrollY } = useScroll();
+  const translateY = useTransform(scrollY, [0, 2000], [0, -200]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+    
+    // Начальная позиция свечения по центру экрана
+    mouseX.set(typeof window !== 'undefined' ? window.innerWidth / 2 : 0);
+    mouseY.set(typeof window !== 'undefined' ? window.innerHeight / 2 : 0);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
+
+  // Размер ячеек сетки (как ты просил, 150px)
+  const gridSize = '150px 150px';
+
+  return (
+    <div className="fixed inset-0 z-[-20] bg-[#050408] overflow-hidden pointer-events-none">
+      
+      {/* Контейнер с параллаксом (увеличен, чтобы при движении не было пустых краев) */}
+      <motion.div 
+        className="absolute inset-[-15%] w-[130%] h-[130%]"
+        style={{ y: translateY }}
+      >
+        {/* 1. Базовая тусклая сетка */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px)`,
+            backgroundSize: gridSize
+          }}
+        />
+
+        {/* 2. Яркая фиолетовая сетка, которая проявляется только под мышкой (через маску) */}
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(to right, rgba(138,96,194,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(138,96,194,0.2) 1px, transparent 1px)`,
+            backgroundSize: gridSize,
+            // Вычитаем параллакс из позиции маски, чтобы свет не "уплывал" от курсора при скролле
+            WebkitMaskImage: useMotionTemplate`radial-gradient(400px circle at ${mouseX}px calc(${mouseY}px - ${translateY}px), black 0%, transparent 100%)`,
+            maskImage: useMotionTemplate`radial-gradient(400px circle at ${mouseX}px calc(${mouseY}px - ${translateY}px), black 0%, transparent 100%)`,
+          }}
+        />
+      </motion.div>
+
+      {/* 3. Мягкое фоновое свечение (Spotlight) под курсором (без параллакса) */}
+      <motion.div
+        className="absolute inset-0 z-[-1]"
+        style={{
+          background: useMotionTemplate`radial-gradient(500px circle at ${mouseX}px ${mouseY}px, rgba(138,96,194,0.08) 0%, transparent 80%)`,
+        }}
+      />
+    </div>
+  );
+};
+
 
 // ============================================================
 // МЕМОИЗИРОВАННАЯ КАРТОЧКА АККОРДЕОНА
@@ -194,7 +264,7 @@ const AccordionCard = memo(function AccordionCard({ anime, idx, isActive, onActi
       onMouseEnter={() => onActivate(idx)} onClick={() => onActivate(idx)}
       animate={{ flex: isActive ? 6 : 1 }} transition={{ type: "spring", stiffness: 200, damping: 26, mass: 0.8 }}
       className={`relative overflow-hidden rounded-2xl md:rounded-[2rem] cursor-pointer border transition-colors duration-300 group will-change-[flex]
-        ${isActive ? 'border-white/10' : 'border-white/5 hover:border-white/10 bg-[#121015]'}`}
+        ${isActive ? 'border-white/10' : 'border-white/5 hover:border-white/10 bg-[#121015]/60 backdrop-blur-sm'}`}
       style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
     >
       <Image src={anime.img} alt={anime.title} fill unoptimized priority={idx <= 2} sizes={isActive ? '60vw' : '10vw'}
@@ -255,7 +325,6 @@ const AccordionCard = memo(function AccordionCard({ anime, idx, isActive, onActi
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ============================================================
 export default function PremiumDashboardHomePage() {
-  // ТРЕТЬЯ ПАНЕЛЬ ОТКРЫТА ПО УМОЛЧАНИЮ (индекс 2 = Iblislar qotili)
   const [activeIdx, setActiveIdx] = useState(2);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -271,14 +340,18 @@ export default function PremiumDashboardHomePage() {
   const currentFilterLabel = filterOptions.find(f => f.key === activeFilter)?.label || 'Kun davomida';
 
   return (
-    <div className="min-h-screen bg-[#0b090f] text-white selection:bg-[#8a60c2] selection:text-white font-sans overflow-x-hidden flex flex-col relative z-0">
+    <div className="min-h-screen bg-transparent text-white selection:bg-[#8a60c2] selection:text-white font-sans overflow-x-hidden flex flex-col relative z-0">
       
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <div className="fixed top-[20%] -left-[250px] w-[600px] h-[600px] bg-[#8a60c2] opacity-[0.12] blur-[150px] pointer-events-none -z-10 rounded-full" />
-      <div className="fixed bottom-[10%] -right-[250px] w-[600px] h-[600px] bg-[#8a60c2] opacity-[0.12] blur-[150px] pointer-events-none -z-10 rounded-full" />
+      {/* 
+        ИНТЕРАКТИВНЫЙ ФОН: Сетка + Свечение за курсором + Параллакс
+      */}
+      <SpotlightGrid />
+
+      {/* Шумовой оверлей поверх сетки для текстуры (слегка уменьшена прозрачность) */}
+      <div className="fixed inset-0 z-[-15] pointer-events-none opacity-[0.08] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
       {/* HEADER */}
-      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 border-b border-gray-800 bg-black/95 backdrop-blur-md">
+      <header className="hidden md:block fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl">
         <nav className="max-w-7xl mx-auto flex items-center justify-between px-5 h-[72px]">
           <div className="text-2xl font-black tracking-tight italic cursor-pointer">Kawaii<span className="text-[#8a60c2]">UZ</span></div>
           <div className="flex items-center gap-6 text-xs uppercase font-bold tracking-[0.15em] text-gray-400">
@@ -315,7 +388,7 @@ export default function PremiumDashboardHomePage() {
 
           <div ref={continueWatchingRef} className="flex gap-4 md:gap-6 overflow-x-auto md:overflow-hidden pb-4 -mx-5 px-5 md:mx-0 md:px-0 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {continueWatching.map((item) => (
-              <a key={item.id} href="#" className="snap-start flex-shrink-0 w-[220px] md:w-[260px] bg-[#121015]/80 hover:bg-[#1a191f] border border-white/5 hover:border-[#8a60c2]/40 transition-all duration-300 rounded-lg p-2.5 flex items-center gap-3 group relative overflow-hidden">
+              <a key={item.id} href="#" className="snap-start flex-shrink-0 w-[220px] md:w-[260px] bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 transition-all duration-300 rounded-lg p-2.5 flex items-center gap-3 group relative overflow-hidden backdrop-blur-md">
                 <div className="relative w-20 h-12 rounded bg-[#0d0c10] overflow-hidden shrink-0 border border-white/5">
                   <Image src={item.img} alt={item.title} fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" unoptimized loading="lazy" sizes="80px" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"><Play className="w-3 h-3 text-white ml-0.5" fill="currentColor" /></div>
@@ -339,24 +412,49 @@ export default function PremiumDashboardHomePage() {
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-white">Hozir ko'rilyapti</h2>
             <div className="relative">
-              <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wider hover:bg-white/10 transition-all duration-300">
-                <span>{currentFilterLabel}</span><ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence>
-                {isDropdownOpen && (
-                  <motion.div initial={{ opacity: 0, y: -8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.96 }} transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-48 bg-[#1a191f] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-md">
-                    {filterOptions.map((option) => (
-                      <button key={option.key} onClick={() => { setActiveFilter(option.key); setIsDropdownOpen(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-between
-                          ${activeFilter === option.key ? 'bg-[#8a60c2]/10 text-[#8a60c2]' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-                        {option.label}{activeFilter === option.key && <span className="w-1.5 h-1.5 rounded-full bg-[#8a60c2]" />}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+  {/* ОБНОВЛЕННАЯ КНОПКА */}
+  <button 
+    onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#121015]/80 border border-white/5 text-gray-300 text-[10px] font-bold uppercase tracking-widest hover:border-[#8a60c2]/40 hover:bg-[#8a60c2]/10 hover:text-white hover:shadow-[0_0_15px_rgba(138,96,194,0.15)] transition-all duration-300 backdrop-blur-md group"
+  >
+    <span>{currentFilterLabel}</span>
+    <ChevronDown className={`w-3.5 h-3.5 text-gray-500 group-hover:text-[#8a60c2] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+  </button>
+
+  {/* ОБНОВЛЕННОЕ ВЫПАДАЮЩЕЕ МЕНЮ */}
+  <AnimatePresence>
+    {isDropdownOpen && (
+      <motion.div 
+        initial={{ opacity: 0, y: -5, scale: 0.98 }} 
+        animate={{ opacity: 1, y: 0, scale: 1 }} 
+        exit={{ opacity: 0, y: -5, scale: 0.98 }} 
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="absolute right-0 mt-2 w-44 bg-[#121015]/95 border border-[#8a60c2]/20 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden z-50 backdrop-blur-xl"
+      >
+        {/* Твой кастомный шум на фоне меню */}
+        <div className="absolute inset-0 cyber-noise pointer-events-none" />
+        
+        <div className="relative z-10 p-1.5 flex flex-col gap-0.5">
+          {filterOptions.map((option) => (
+            <button 
+              key={option.key} 
+              onClick={() => { setActiveFilter(option.key); setIsDropdownOpen(false); }}
+              className={`w-full text-left px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-200 flex items-center justify-between rounded-md
+                ${activeFilter === option.key 
+                  ? 'bg-[#8a60c2]/20 text-white shadow-[inset_2px_0_0_#8a60c2]' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+            >
+              {option.label}
+              {activeFilter === option.key && (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#8a60c2] shadow-[0_0_6px_#8a60c2]" />
+              )}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -372,7 +470,7 @@ export default function PremiumDashboardHomePage() {
                 </div>
                 <div className="space-y-3">
                   {col.items.map((item) => (
-                    <a key={item.id} href="#" className="relative overflow-hidden flex items-center gap-3 bg-[#121015]/80 hover:bg-[#1a191f] border border-white/5 hover:border-[#8a60c2]/30 rounded-lg p-2.5 transition-all duration-300 group w-full">
+                    <a key={item.id} href="#" className="relative overflow-hidden flex items-center gap-3 bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/30 rounded-lg p-2.5 transition-all duration-300 group w-full backdrop-blur-md">
                       
                       {/* KATANA SLASH - ФОНОВЫЙ СРЕЗ */}
                       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -408,130 +506,130 @@ export default function PremiumDashboardHomePage() {
             
             <div className="flex flex-col">
             {latestUpdates.map((item, index) => (
-  <motion.a 
-    key={item.id} 
-    href="#" 
-    initial="initial"
-    whileHover="hover"
-    className="flex items-center gap-4 py-4 px-4 rounded-md relative overflow-hidden group transition-all duration-500 bg-[#121015]/30 border-b border-white/5 last:border-0"
-  >
-    {/* 1. ПЕРВЫЙ СЛОЙ ЗАЛИВКИ (Фоновый) */}
-    <motion.div 
-      variants={{
-        initial: { x: '-110%', skewX: -20 },
-        hover: { x: '-30%', skewX: -20 }
-      }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute inset-0 bg-[#8a60c2]/5 pointer-events-none z-0"
-    />
+              <motion.a 
+                key={item.id} 
+                href="#" 
+                initial="initial"
+                whileHover="hover"
+                className="flex items-center gap-4 py-4 px-4 rounded-md relative overflow-hidden group transition-all duration-500 bg-[#121015]/30 backdrop-blur-md border-b border-white/5 last:border-0 hover:bg-[#1a191f]/50"
+              >
+                {/* 1. ПЕРВЫЙ СЛОЙ ЗАЛИВКИ (Фоновый) */}
+                <motion.div 
+                  variants={{
+                    initial: { x: '-110%', skewX: -20 },
+                    hover: { x: '-30%', skewX: -20 }
+                  }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0 bg-[#8a60c2]/5 pointer-events-none z-0"
+                />
 
-    {/* 2. ВТОРОЙ СЛОЙ (Акцентный с шумом) */}
-    <motion.div 
-      variants={{
-        initial: { x: '-120%', skewX: -20 },
-        hover: { x: '-50%', skewX: -20 }
-      }}
-      transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-      className="absolute inset-0 bg-gradient-to-r from-[#8a60c2]/20 to-transparent pointer-events-none z-0 overflow-hidden"
-    >
-      <div className="absolute inset-0 cyber-noise" />
-    </motion.div>
+                {/* 2. ВТОРОЙ СЛОЙ (Акцентный с шумом) */}
+                <motion.div 
+                  variants={{
+                    initial: { x: '-120%', skewX: -20 },
+                    hover: { x: '-50%', skewX: -20 }
+                  }}
+                  transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+                  className="absolute inset-0 bg-gradient-to-r from-[#8a60c2]/20 to-transparent pointer-events-none z-0 overflow-hidden"
+                >
+                  <div className="absolute inset-0 cyber-noise" />
+                </motion.div>
 
-    {/* 3. ЦИФРОВЫЕ ПИКСЕЛИ (Декор) */}
-    <div className="pixel top-2 left-1/4" style={{ animationDelay: '0.1s' }} />
-    <div className="pixel bottom-4 left-1/3" style={{ animationDelay: '0.4s' }} />
-    <div className="pixel top-1/2 left-10" style={{ animationDelay: '0.7s' }} />
+                {/* 3. ЦИФРОВЫЕ ПИКСЕЛИ (Декор) */}
+                <div className="pixel top-2 left-1/4" style={{ animationDelay: '0.1s' }} />
+                <div className="pixel bottom-4 left-1/3" style={{ animationDelay: '0.4s' }} />
+                <div className="pixel top-1/2 left-10" style={{ animationDelay: '0.7s' }} />
 
-    {/* ПОСТЕР С ЭФФЕКТОМ "ВЫХОДА" */}
-    <motion.div 
-      variants={{
-        hover: { scale: 1.05, x: 5 }
-      }}
-      className="relative w-[65px] h-[95px] rounded-sm overflow-hidden shrink-0 z-10 border border-white/10 shadow-2xl transition-all"
-    >
-      <Image src={item.img} alt={item.title} fill className="object-cover" unoptimized />
-      {/* Световой блик на постере */}
-      <motion.div 
-        variants={{
-          initial: { left: '-100%' },
-          hover: { left: '100%' }
-        }}
-        transition={{ duration: 0.8 }}
-        className="absolute top-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-20"
-      />
-    </motion.div>
+                {/* ПОСТЕР С ЭФФЕКТОМ "ВЫХОДА" */}
+                <motion.div 
+                  variants={{
+                    hover: { scale: 1.05, x: 5 }
+                  }}
+                  className="relative w-[65px] h-[95px] rounded-sm overflow-hidden shrink-0 z-10 border border-white/10 shadow-2xl transition-all"
+                >
+                  <Image src={item.img} alt={item.title} fill className="object-cover" unoptimized />
+                  {/* Световой блик на постере */}
+                  <motion.div 
+                    variants={{
+                      initial: { left: '-100%' },
+                      hover: { left: '100%' }
+                    }}
+                    transition={{ duration: 0.8 }}
+                    className="absolute top-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-20"
+                  />
+                </motion.div>
 
-    {/* КОНТЕНТ С ПАРАЛЛАКСОМ */}
-    <motion.div 
-      variants={{
-        hover: { x: 8 }
-      }}
-      className="flex-1 min-w-0 z-10 relative"
-    >
-      <div className="flex items-center gap-2 mb-1">
-        <h3 className="text-sm font-black text-white uppercase tracking-tight transition-colors duration-300">
-          {item.title}
-        </h3>
-      </div>
-      
-      <div className="flex items-center gap-2">
-        <motion.span 
-          whileHover={{ scale: 1.1 }}
-          className="text-[10px] font-bold text-[#8a60c2] bg-[#8a60c2]/10 px-2 py-0.5 rounded-sm border border-[#8a60c2]/20 cursor-default"
-        >
-          {item.ep}
-        </motion.span>
-        <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">{item.type}</span>
-      </div>
+                {/* КОНТЕНТ С ПАРАЛЛАКСОМ */}
+                <motion.div 
+                  variants={{
+                    hover: { x: 8 }
+                  }}
+                  className="flex-1 min-w-0 z-10 relative"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-sm font-black text-white uppercase tracking-tight transition-colors duration-300">
+                      {item.title}
+                    </h3>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <motion.span 
+                      whileHover={{ scale: 1.1 }}
+                      className="text-[10px] font-bold text-[#8a60c2] bg-[#8a60c2]/10 px-2 py-0.5 rounded-sm border border-[#8a60c2]/20 cursor-default"
+                    >
+                      {item.ep}
+                    </motion.span>
+                    <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">{item.type}</span>
+                  </div>
 
-      <div className="mt-2 flex items-center gap-3">
-         <span className="text-[9px] text-gray-600 font-mono flex items-center gap-1 group-hover:text-gray-400 transition-colors">
-            <Clock className="w-3 h-3" /> {item.time}
-         </span>
-      </div>
-    </motion.div>
+                  <div className="mt-2 flex items-center gap-3">
+                    <span className="text-[9px] text-gray-600 font-mono flex items-center gap-1 group-hover:text-gray-400 transition-colors">
+                        <Clock className="w-3 h-3" /> {item.time}
+                    </span>
+                  </div>
+                </motion.div>
 
-    {/* КНОПКИ ДЕЙСТВИЙ */}
-    <motion.div 
-      variants={{
-        initial: { opacity: 0, scale: 0.8 },
-        hover: { opacity: 1, scale: 1 }
-      }}
-      transition={{ duration: 0.2 }}
-      className="flex items-center gap-2 z-20 mr-2"
-    >
-      {[
-        { icon: Play, label: "Tomosha" },
-        { icon: Bookmark, label: "Saqlash" },
-        { icon: Plus, label: "Ro'yxat" }
-      ].map((btn, bIdx) => (
-        <motion.button
-          key={bIdx}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 400, 
-            damping: 15,
-            delay: bIdx * 0.05 
-          }}
-          className="w-9 h-9 rounded-sm bg-[#8a60c2]/10 border border-[#8a60c2]/20 flex items-center justify-center transition-all duration-300 hover:bg-[#8a60c2] hover:border-[#8a60c2] hover:shadow-[0_0_15px_rgba(138,96,194,0.3)] group/btn"
-        >
-          <btn.icon className="w-4 h-4 text-[#8a60c2] group-hover/btn:text-white transition-all duration-300" />
-        </motion.button>
-      ))}
-    </motion.div>
+                {/* КНОПКИ ДЕЙСТВИЙ */}
+                <motion.div 
+                  variants={{
+                    initial: { opacity: 0, scale: 0.8 },
+                    hover: { opacity: 1, scale: 1 }
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center gap-2 z-20 mr-2"
+                >
+                  {[
+                    { icon: Play, label: "Tomosha" },
+                    { icon: Bookmark, label: "Saqlash" },
+                    { icon: Plus, label: "Ro'yxat" }
+                  ].map((btn, bIdx) => (
+                    <motion.button
+                      key={bIdx}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 400, 
+                        damping: 15,
+                        delay: bIdx * 0.05 
+                      }}
+                      className="w-9 h-9 rounded-sm bg-[#8a60c2]/10 border border-[#8a60c2]/20 flex items-center justify-center transition-all duration-300 hover:bg-[#8a60c2] hover:border-[#8a60c2] hover:shadow-[0_0_15px_rgba(138,96,194,0.3)] group/btn"
+                    >
+                      <btn.icon className="w-4 h-4 text-[#8a60c2] group-hover/btn:text-white transition-all duration-300" />
+                    </motion.button>
+                  ))}
+                </motion.div>
 
-    {/* НИЖНИЙ ИНДИКАТОР АКТИВНОСТИ */}
-    <motion.div 
-      variants={{
-        initial: { width: 0, opacity: 0 },
-        hover: { width: '100%', opacity: 1 }
-      }}
-      className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8a60c2] to-transparent z-30"
-    />
-  </motion.a>
-))}
+                {/* НИЖНИЙ ИНДИКАТОР АКТИВНОСТИ */}
+                <motion.div 
+                  variants={{
+                    initial: { width: 0, opacity: 0 },
+                    hover: { width: '100%', opacity: 1 }
+                  }}
+                  className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8a60c2] to-transparent z-30"
+                />
+              </motion.a>
+            ))}
             </div>
 
             <div className="flex justify-center mt-4">
@@ -560,18 +658,18 @@ export default function PremiumDashboardHomePage() {
                   const progressPercent = (user.points / maxPoints) * 100;
                   
                   return (
-                    <div key={user.id} className="relative flex items-center gap-3 p-2.5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] rounded-md transition-all group overflow-hidden cursor-pointer">
+                    <div key={user.id} className="relative flex items-center gap-3 p-2.5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] rounded-md transition-all group overflow-hidden cursor-pointer backdrop-blur-sm">
                       <div className={`absolute left-0 top-0 bottom-0 w-[2px] transition-transform origin-center duration-500 group-hover:scale-y-100 scale-y-0
-                        ${user.rank === 'purple' ? 'bg-violet-400' : ''}
-                        ${user.rank === 'red' ? 'bg-red-400' : ''}
-                        ${user.rank === 'ascendant' ? 'bg-emerald-400' : ''}
+                        ${user.rank === 'amethyst' ? 'bg-violet-400' : ''}
+                        ${user.rank === 'ruby' ? 'bg-red-400' : ''}
+                        ${user.rank === 'emerald' ? 'bg-emerald-400' : ''}
                         ${user.rank === 'gold' ? 'bg-yellow-400' : ''}
-                        ${user.rank === 'silver' ? 'bg-gray-300' : ''}
-                        ${user.rank === 'bronze' ? 'bg-amber-900' : ''}`}
+                        ${user.rank === 'iron' ? 'bg-gray-300' : ''}
+                        ${user.rank === 'wood' ? 'bg-amber-900' : ''}`}
                       />
 
                       {/* ИКОНКА РАНГА */}
-                      <div className="relative w-12 h-6 shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                      <div className="relative w-16 h-12 shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                         <Image 
                           src={rankConfig.imgSrc} 
                           alt={rankConfig.name} 
@@ -592,12 +690,12 @@ export default function PremiumDashboardHomePage() {
                         />
                         {/* Overlay для стиля */}
                         <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity z-10
-                          ${user.rank === 'purple' ? 'bg-violet-400' : ''}
-                          ${user.rank === 'red' ? 'bg-red-400' : ''}
-                          ${user.rank === 'ascendant' ? 'bg-emerald-400' : ''}
+                          ${user.rank === 'amethyst' ? 'bg-violet-400' : ''}
+                          ${user.rank === 'ruby' ? 'bg-red-400' : ''}
+                          ${user.rank === 'emerald' ? 'bg-emerald-400' : ''}
                           ${user.rank === 'gold' ? 'bg-yellow-400' : ''}
-                          ${user.rank === 'silver' ? 'bg-gray-300' : ''}
-                          ${user.rank === 'bronze' ? 'bg-amber-950' : ''}`}
+                          ${user.rank === 'iron' ? 'bg-gray-300' : ''}
+                          ${user.rank === 'wood' ? 'bg-amber-950' : ''}`}
                         />
                       </div>
 
@@ -630,7 +728,7 @@ export default function PremiumDashboardHomePage() {
               </div>
             </div>
 
-            {/* OXIRGI SHARHLAR (ОБНОВЛЕННЫЙ ДИЗАЙН: SIDE-BY-SIDE + Halftone) */}
+            {/* OXIRGI SHARHLAR */}
             <div>
               <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
                 <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">Oxirgi sharhlar</h2>
@@ -641,11 +739,8 @@ export default function PremiumDashboardHomePage() {
 
               <div className="flex flex-col gap-3">
                 {reviews.slice(0, 4).map((review) => (
-                  <a key={review.id} href="#" className="relative overflow-hidden bg-[#121015]/80 hover:bg-[#1a191f] border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-2.5 transition-all duration-300 group flex gap-3 h-[130px]">
+                  <a key={review.id} href="#" className="relative overflow-hidden bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-2.5 transition-all duration-300 group flex gap-3 h-[130px] backdrop-blur-md">
                     
-                    {/* Halftone Manga Pattern */}
-                    <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #8a60c2 1px, transparent 1px)', backgroundSize: '8px 8px' }} />
-
                     {/* ФОНОВОЕ ИЗОБРАЖЕНИЕ (ПОСТЕР) */}
                     <div className="relative w-[85px] h-full shrink-0 overflow-hidden rounded-md border border-white/10 group-hover:border-[#8a60c2]/50 transition-colors duration-300 z-10 shadow-md bg-[#050408]">
                       <Image 
@@ -681,7 +776,7 @@ export default function PremiumDashboardHomePage() {
               </div>
             </div>
 
-            {/* YANGILIKLAR (ОБНОВЛЕНО: добавлены картинки) */}
+            {/* YANGILIKLAR */}
             <div>
               <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
                 <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white flex items-center gap-2">
@@ -694,7 +789,7 @@ export default function PremiumDashboardHomePage() {
 
               <div className="grid grid-cols-2 gap-3">
                 {news.slice(0, 4).map((item) => (
-                  <a key={item.id} href="#" className="bg-[#121015]/80 hover:bg-[#1a191f] border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-3 transition-all duration-300 group flex flex-col h-[240px]">
+                  <a key={item.id} href="#" className="bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-3 transition-all duration-300 group flex flex-col h-[240px] backdrop-blur-md">
                     
                     {/* ФОТО НОВОСТИ */}
                     <div className="relative w-full h-[90px] mb-3 rounded-md overflow-hidden shrink-0 border border-white/5 group-hover:border-[#8a60c2]/30 transition-colors">
@@ -716,7 +811,7 @@ export default function PremiumDashboardHomePage() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-black w-full pt-12 pb-24 md:pb-10 md:pt-20 border-t border-gray-800 mt-10 relative z-10">
+      <footer className="bg-black/40 backdrop-blur-xl w-full pt-12 pb-24 md:pb-10 md:pt-20 border-t border-white/5 mt-10 relative z-10">
         <div className="max-w-7xl mx-auto px-5">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10 md:mb-16 text-center md:text-left">
             <div className="md:col-span-1">
@@ -752,7 +847,7 @@ export default function PremiumDashboardHomePage() {
       </footer>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-black/95 backdrop-blur-[10px] border-t border-white/5 flex justify-around pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))] z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-xl border-t border-white/5 flex justify-around pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))] z-50">
         <a href="#" className="flex flex-col items-center gap-[2px] text-gray-500 hover:text-white transition group w-[15%]"><Bookmark className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide mt-1">Saqlanganlar</span></a>
         <a href="manga_catalog.html" className="flex flex-col items-center gap-[2px] text-gray-500 hover:text-white transition group w-[15%]"><Layers className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide mt-1">Katalog</span></a>
         <a href="#" className="flex flex-col items-center justify-center relative w-[20%] transform -translate-y-1"><div className="w-10 h-10 rounded-md bg-[#8a60c2] text-white flex items-center justify-center font-black italic drop-shadow-[0_0_10px_rgba(138,96,194,0.5)]">K</div></a>
