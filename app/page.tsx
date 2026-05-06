@@ -6,7 +6,7 @@ import {
   Play, ChevronRight, ChevronLeft,
   Search, X, BookOpen, MessageSquare, Headphones, MoreHorizontal, User, 
   Bookmark, Layers, Bell, Menu, Send, ChevronDown, Star, Trophy, ChevronRightIcon,
-  ThumbsUp, ThumbsDown, MessageCircle, Newspaper, Shield, Plus, Eye, Clock, 
+  ThumbsUp, ThumbsDown, MessageCircle, Newspaper, Shield, Plus, Eye, Clock, Hash
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -118,6 +118,14 @@ const reviews = [
     likes: 93, comments: 6, time: 'bir kun oldin',
     bgImage: '/images/abyss.jpg'
   },
+  {
+    id: 5, type: 'review' as const, sentiment: 'positive' as const,
+    title: 'Ajoyib qaytish!',
+    anime: 'Bleach: Ming yillik urush',
+    preview: 'Kubo sensei nihoyat o\'zining eng zo\'r asarini anime formatiga olib kirdi...',
+    likes: 210, comments: 45, time: '2 kun oldin',
+    bgImage: '/images/chainsaw.webp'
+  },
 ];
 
 const news = [
@@ -125,6 +133,18 @@ const news = [
   { id: 2, title: 'O\'zbekistonda birinchi anime-festival: AniFest 2026 Toshkentda', preview: '20-22 iyun kunlari Toshkentda birinchi xalqaro anime festivali bo\'lib o\'tadi. Mehmonlar orasida...', source: 'KawaiiUZ', time: '5 soat oldin', img: '/images/anifest.jpg' },
   { id: 3, title: '«Solo Leveling» 2-mavsumi rekord o\'rnatdi', preview: 'Crunchyroll ma\'lumotlariga ko\'ra, ikkinchi mavsum premyerasi platforma tarixidagi eng ko\'p tomosha qilingan...', source: 'Crunchyroll', time: '8 soat oldin', img: '/images/solo.jpg' },
   { id: 4, title: 'Ufotable «Iblislar qotili» filmini e\'lon qildi', preview: 'Yangi to\'liq metrajli film mangadagi yakuniy jangni ekranlashtiradi. Premyera 2027 yilga...', source: 'Anime News Network', time: '12 soat oldin', img: '/images/kimetsu.jpg' },
+  { id: 5, title: 'Makoto Shinkayning yangi filmi anons qilindi', preview: 'Rejissyor o\'zining navbatdagi asari ustida ish boshlaganini ma\'lum qildi...', source: 'Twitter', time: '1 kun oldin', img: '/images/wind.jpg' },
+  { id: 6, title: 'Oshi no Ko 2-mavsum treyleri namoyish etildi', preview: 'Aqua va Rubyning sarguzashtlari davom etadi. Yangi qahramonlar va...', source: 'Kadokawa', time: '2 kun oldin', img: '/images/akira.jpg' },
+];
+
+const forumTopics = [
+  { id: 1, title: 'Solo Leveling 2-mavsum qachon chiqadi?', author: 'AnimeQiroli', replies: 45, views: '1.2k', time: '10 daq oldin', tag: 'Muhokama', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+  { id: 2, title: 'One Piece: Gear 5 animatsiyasi haqida fikrlar', author: 'Otaku_Uzz', replies: 128, views: '3.4k', time: '1 soat oldin', tag: 'Spoiler', color: 'text-red-400', bg: 'bg-red-400/10' },
+  { id: 3, title: 'Toshkentda AniFest 2026: Kimlar boryapti?', author: 'Kawaii_Girl', replies: 312, views: '5k', time: '2 soat oldin', tag: 'Tadbir', color: 'text-[#8a60c2]', bg: 'bg-[#8a60c2]/10' },
+  { id: 4, title: 'Jujutsu Kaisen manga oxiri... qanday tugaydi?', author: 'GojoSensei', replies: 89, views: '2.1k', time: '5 soat oldin', tag: 'Manga', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+  { id: 5, title: 'Boshlovchilar uchun qaysi animelarni tavsiya qilasiz?', author: 'Newbie123', replies: 56, views: '800', time: '1 kun oldin', tag: 'Tavsiya', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+  { id: 6, title: 'O\'zbek tilidagi eng yaxshi fandub studiyalari', author: 'DuberMan', replies: 34, views: '1.5k', time: '1 kun oldin', tag: 'Dublyaj', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+  { id: 7, title: 'Demon Slayer vs Jujutsu Kaisen: Animatsiya jangi', author: 'NinjaTash', replies: 210, views: '4.2k', time: '2 kun oldin', tag: 'Versus', color: 'text-red-500', bg: 'bg-red-500/10' },
 ];
 
 type RankType = 'wood' | 'iron' | 'gold' | 'emerald' | 'ruby' | 'amethyst';
@@ -184,7 +204,6 @@ const filterOptions = [
   { key: 'oy' as const, label: 'Oy davomida' },
 ];
 
-
 // ============================================================
 // ИНТЕРАКТИВНАЯ СЕТКА (Spotlight + Parallax Effect)
 // ============================================================
@@ -192,7 +211,6 @@ const SpotlightGrid = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  // ПАРАЛЛАКС: при скролле от 0 до 2000px, сетка плавно сдвигается на 200px вверх
   const { scrollY } = useScroll();
   const translateY = useTransform(scrollY, [0, 2000], [0, -200]);
 
@@ -202,7 +220,6 @@ const SpotlightGrid = () => {
       mouseY.set(e.clientY);
     };
     
-    // Начальная позиция свечения по центру экрана
     mouseX.set(typeof window !== 'undefined' ? window.innerWidth / 2 : 0);
     mouseY.set(typeof window !== 'undefined' ? window.innerHeight / 2 : 0);
 
@@ -210,18 +227,14 @@ const SpotlightGrid = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
 
-  // Размер ячеек сетки (как ты просил, 150px)
   const gridSize = '150px 150px';
 
   return (
     <div className="fixed inset-0 z-[-20] bg-[#050408] overflow-hidden pointer-events-none">
-      
-      {/* Контейнер с параллаксом (увеличен, чтобы при движении не было пустых краев) */}
       <motion.div 
         className="absolute inset-[-15%] w-[130%] h-[130%]"
         style={{ y: translateY }}
       >
-        {/* 1. Базовая тусклая сетка */}
         <div 
           className="absolute inset-0"
           style={{
@@ -230,20 +243,17 @@ const SpotlightGrid = () => {
           }}
         />
 
-        {/* 2. Яркая фиолетовая сетка, которая проявляется только под мышкой (через маску) */}
         <motion.div
           className="absolute inset-0"
           style={{
             backgroundImage: `linear-gradient(to right, rgba(138,96,194,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(138,96,194,0.2) 1px, transparent 1px)`,
             backgroundSize: gridSize,
-            // Вычитаем параллакс из позиции маски, чтобы свет не "уплывал" от курсора при скролле
             WebkitMaskImage: useMotionTemplate`radial-gradient(400px circle at ${mouseX}px calc(${mouseY}px - ${translateY}px), black 0%, transparent 100%)`,
             maskImage: useMotionTemplate`radial-gradient(400px circle at ${mouseX}px calc(${mouseY}px - ${translateY}px), black 0%, transparent 100%)`,
           }}
         />
       </motion.div>
 
-      {/* 3. Мягкое фоновое свечение (Spotlight) под курсором (без параллакса) */}
       <motion.div
         className="absolute inset-0 z-[-1]"
         style={{
@@ -253,7 +263,6 @@ const SpotlightGrid = () => {
     </div>
   );
 };
-
 
 // ============================================================
 // МЕМОИЗИРОВАННАЯ КАРТОЧКА АККОРДЕОНА
@@ -275,7 +284,6 @@ const AccordionCard = memo(function AccordionCard({ anime, idx, isActive, onActi
       <div className={`absolute inset-0 bg-gradient-to-t from-[#0b090f] via-[#0b090f]/40 to-transparent transition-opacity duration-700 pointer-events-none ${isActive ? 'opacity-90' : 'opacity-60'}`} />
       {isActive && <div className="absolute inset-0 bg-gradient-to-r from-[#0b090f]/90 via-transparent to-transparent opacity-90 pointer-events-none" />}
 
-      {/* НЕАКТИВНОЕ СОСТОЯНИЕ */}
       <motion.div initial={false} animate={{ opacity: isActive ? 0 : 1 }} transition={{ duration: 0.2, delay: isActive ? 0 : 0.4 }} className="absolute inset-0 flex flex-col items-center justify-between py-6 md:py-8 pointer-events-none">
         <div className="flex flex-col items-center gap-1"><span className="text-[12px] md:text-sm font-mono text-[#8a60c2]/70 font-black tracking-[0.3em]">0{idx + 1}</span><div className="w-8 h-[1px] bg-white/10" /></div>
         <div className="hidden md:flex flex-col items-center gap-3 px-2">
@@ -292,14 +300,12 @@ const AccordionCard = memo(function AccordionCard({ anime, idx, isActive, onActi
         <span className="text-gray-400 font-bold tracking-[0.2em] text-[10px] uppercase group-hover:text-white transition-colors mb-16" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>{anime.title}</span>
       </motion.div>
 
-      {/* АКТИВНОЕ СОСТОЯНИЕ */}
       <motion.div initial={false} animate={{ opacity: isActive ? 1 : 0 }} transition={{ duration: 0.3, delay: isActive ? 0.4 : 0 }} className={`absolute inset-0 p-6 md:p-10 flex flex-col justify-end pointer-events-auto ${!isActive && 'pointer-events-none'}`}>
         <div className="relative z-10 w-[80vw] md:w-[600px] max-w-full">
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span className="px-3 py-1 bg-[#8a60c2] text-white text-[10px] font-black uppercase tracking-widest rounded-md">{anime.status}</span>
             <span className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 text-gray-200 text-[10px] font-mono uppercase tracking-widest rounded-md">{anime.episodes}</span>
             <div className="flex items-center gap-1 px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-md"><Star className="w-3 h-3 text-[#8a60c2] fill-[#8a60c2]" /><span className="text-white text-[10px] font-black tracking-wider">{anime.rating}</span></div>
-            {/* ФИОЛЕТОВЫЙ БЕЙДЖ ТИПА */}
             <span className="px-2.5 py-1 bg-[#8a60c2]/15 border border-[#8a60c2]/30 text-[#8a60c2] text-[9px] font-bold uppercase tracking-wider rounded-md backdrop-blur-sm">
               {anime.type || 'TV Serial'}
             </span>
@@ -342,12 +348,7 @@ export default function PremiumDashboardHomePage() {
   return (
     <div className="min-h-screen bg-transparent text-white selection:bg-[#8a60c2] selection:text-white font-sans overflow-x-hidden flex flex-col relative z-0">
       
-      {/* 
-        ИНТЕРАКТИВНЫЙ ФОН: Сетка + Свечение за курсором + Параллакс
-      */}
       <SpotlightGrid />
-
-      {/* Шумовой оверлей поверх сетки для текстуры (слегка уменьшена прозрачность) */}
       <div className="fixed inset-0 z-[-15] pointer-events-none opacity-[0.08] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
       {/* HEADER */}
@@ -412,49 +413,45 @@ export default function PremiumDashboardHomePage() {
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-white">Hozir ko'rilyapti</h2>
             <div className="relative">
-  {/* ОБНОВЛЕННАЯ КНОПКА */}
-  <button 
-    onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
-    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#121015]/80 border border-white/5 text-gray-300 text-[10px] font-bold uppercase tracking-widest hover:border-[#8a60c2]/40 hover:bg-[#8a60c2]/10 hover:text-white hover:shadow-[0_0_15px_rgba(138,96,194,0.15)] transition-all duration-300 backdrop-blur-md group"
-  >
-    <span>{currentFilterLabel}</span>
-    <ChevronDown className={`w-3.5 h-3.5 text-gray-500 group-hover:text-[#8a60c2] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-  </button>
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#121015]/80 border border-white/5 text-gray-300 text-[10px] font-bold uppercase tracking-widest hover:border-[#8a60c2]/40 hover:bg-[#8a60c2]/10 hover:text-white hover:shadow-[0_0_15px_rgba(138,96,194,0.15)] transition-all duration-300 backdrop-blur-md group"
+              >
+                <span>{currentFilterLabel}</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-gray-500 group-hover:text-[#8a60c2] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-  {/* ОБНОВЛЕННОЕ ВЫПАДАЮЩЕЕ МЕНЮ */}
-  <AnimatePresence>
-    {isDropdownOpen && (
-      <motion.div 
-        initial={{ opacity: 0, y: -5, scale: 0.98 }} 
-        animate={{ opacity: 1, y: 0, scale: 1 }} 
-        exit={{ opacity: 0, y: -5, scale: 0.98 }} 
-        transition={{ duration: 0.2, ease: "easeOut" }}
-        className="absolute right-0 mt-2 w-44 bg-[#121015]/95 border border-[#8a60c2]/20 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden z-50 backdrop-blur-xl"
-      >
-        {/* Твой кастомный шум на фоне меню */}
-        <div className="absolute inset-0 cyber-noise pointer-events-none" />
-        
-        <div className="relative z-10 p-1.5 flex flex-col gap-0.5">
-          {filterOptions.map((option) => (
-            <button 
-              key={option.key} 
-              onClick={() => { setActiveFilter(option.key); setIsDropdownOpen(false); }}
-              className={`w-full text-left px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-200 flex items-center justify-between rounded-md
-                ${activeFilter === option.key 
-                  ? 'bg-[#8a60c2]/20 text-white shadow-[inset_2px_0_0_#8a60c2]' 
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-            >
-              {option.label}
-              {activeFilter === option.key && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8a60c2] shadow-[0_0_6px_#8a60c2]" />
-              )}
-            </button>
-          ))}
-        </div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-</div>
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -5, scale: 0.98 }} 
+                    animate={{ opacity: 1, y: 0, scale: 1 }} 
+                    exit={{ opacity: 0, y: -5, scale: 0.98 }} 
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="absolute right-0 mt-2 w-44 bg-[#121015]/95 border border-[#8a60c2]/20 rounded-lg shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden z-50 backdrop-blur-xl"
+                  >
+                    <div className="absolute inset-0 cyber-noise pointer-events-none" />
+                    <div className="relative z-10 p-1.5 flex flex-col gap-0.5">
+                      {filterOptions.map((option) => (
+                        <button 
+                          key={option.key} 
+                          onClick={() => { setActiveFilter(option.key); setIsDropdownOpen(false); }}
+                          className={`w-full text-left px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-200 flex items-center justify-between rounded-md
+                            ${activeFilter === option.key 
+                              ? 'bg-[#8a60c2]/20 text-white shadow-[inset_2px_0_0_#8a60c2]' 
+                              : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                          {option.label}
+                          {activeFilter === option.key && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#8a60c2] shadow-[0_0_6px_#8a60c2]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -472,7 +469,6 @@ export default function PremiumDashboardHomePage() {
                   {col.items.map((item) => (
                     <a key={item.id} href="#" className="relative overflow-hidden flex items-center gap-3 bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/30 rounded-lg p-2.5 transition-all duration-300 group w-full backdrop-blur-md">
                       
-                      {/* KATANA SLASH - ФОНОВЫЙ СРЕЗ */}
                       <div className="absolute inset-0 z-0 pointer-events-none">
                         <div className="absolute w-[200%] h-[200%] -top-[50%] -left-[50%] origin-center bg-gradient-to-tl from-[#8a60c2]/5 to-[#8a60c2]/20 rotate-[-45deg] translate-y-[100%] group-hover:translate-y-[40%] transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] border-t border-[#8a60c2]/50 shadow-[0_-5px_15px_rgba(138,96,194,0.15)]" />
                       </div>
@@ -493,320 +489,359 @@ export default function PremiumDashboardHomePage() {
           </div>
         </section>
 
-        {/* SO'NGGI YANGILANISHLAR + ПРАВАЯ КОЛОНКА */}
-        <section className="mt-16 md:mt-28 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
+        {/* НОВАЯ ЛЕЙАУТ-СТРУКТУРА: РАЗДЕЛЕНО НА 3 РЯДА */}
+        <div className="mt-16 md:mt-28 w-full flex flex-col gap-12 md:gap-16">
           
-          <div className="lg:col-span-8">
-            <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
-              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">So'nggi yangilanishlar</h2>
-              <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
-                <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
-              </a>
-            </div>
+          {/* ==================================================== */}
+          {/* РЯД 1: ОБНОВЛЕНИЯ (слева 8) + ТОП И ОТЗЫВЫ (справа 4)*/}
+          {/* ==================================================== */}
+          <section className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
             
-            <div className="flex flex-col">
-            {latestUpdates.map((item, index) => (
-              <motion.a 
-                key={item.id} 
-                href="#" 
-                initial="initial"
-                whileHover="hover"
-                className="flex items-center gap-4 py-4 px-4 rounded-md relative overflow-hidden group transition-all duration-500 bg-[#121015]/30 backdrop-blur-md border-b border-white/5 last:border-0 hover:bg-[#1a191f]/50"
-              >
-                {/* 1. ПЕРВЫЙ СЛОЙ ЗАЛИВКИ (Фоновый) */}
-                <motion.div 
-                  variants={{
-                    initial: { x: '-110%', skewX: -20 },
-                    hover: { x: '-30%', skewX: -20 }
-                  }}
-                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute inset-0 bg-[#8a60c2]/5 pointer-events-none z-0"
-                />
-
-                {/* 2. ВТОРОЙ СЛОЙ (Акцентный с шумом) */}
-                <motion.div 
-                  variants={{
-                    initial: { x: '-120%', skewX: -20 },
-                    hover: { x: '-50%', skewX: -20 }
-                  }}
-                  transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
-                  className="absolute inset-0 bg-gradient-to-r from-[#8a60c2]/20 to-transparent pointer-events-none z-0 overflow-hidden"
-                >
-                  <div className="absolute inset-0 cyber-noise" />
-                </motion.div>
-
-                {/* 3. ЦИФРОВЫЕ ПИКСЕЛИ (Декор) */}
-                <div className="pixel top-2 left-1/4" style={{ animationDelay: '0.1s' }} />
-                <div className="pixel bottom-4 left-1/3" style={{ animationDelay: '0.4s' }} />
-                <div className="pixel top-1/2 left-10" style={{ animationDelay: '0.7s' }} />
-
-                {/* ПОСТЕР С ЭФФЕКТОМ "ВЫХОДА" */}
-                <motion.div 
-                  variants={{
-                    hover: { scale: 1.05, x: 5 }
-                  }}
-                  className="relative w-[65px] h-[95px] rounded-sm overflow-hidden shrink-0 z-10 border border-white/10 shadow-2xl transition-all"
-                >
-                  <Image src={item.img} alt={item.title} fill className="object-cover" unoptimized />
-                  {/* Световой блик на постере */}
-                  <motion.div 
-                    variants={{
-                      initial: { left: '-100%' },
-                      hover: { left: '100%' }
-                    }}
-                    transition={{ duration: 0.8 }}
-                    className="absolute top-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-20"
-                  />
-                </motion.div>
-
-                {/* КОНТЕНТ С ПАРАЛЛАКСОМ */}
-                <motion.div 
-                  variants={{
-                    hover: { x: 8 }
-                  }}
-                  className="flex-1 min-w-0 z-10 relative"
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-black text-white uppercase tracking-tight transition-colors duration-300">
-                      {item.title}
-                    </h3>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <motion.span 
-                      whileHover={{ scale: 1.1 }}
-                      className="text-[10px] font-bold text-[#8a60c2] bg-[#8a60c2]/10 px-2 py-0.5 rounded-sm border border-[#8a60c2]/20 cursor-default"
-                    >
-                      {item.ep}
-                    </motion.span>
-                    <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">{item.type}</span>
-                  </div>
-
-                  <div className="mt-2 flex items-center gap-3">
-                    <span className="text-[9px] text-gray-600 font-mono flex items-center gap-1 group-hover:text-gray-400 transition-colors">
-                        <Clock className="w-3 h-3" /> {item.time}
-                    </span>
-                  </div>
-                </motion.div>
-
-                {/* КНОПКИ ДЕЙСТВИЙ */}
-                <motion.div 
-                  variants={{
-                    initial: { opacity: 0, scale: 0.8 },
-                    hover: { opacity: 1, scale: 1 }
-                  }}
-                  transition={{ duration: 0.2 }}
-                  className="flex items-center gap-2 z-20 mr-2"
-                >
-                  {[
-                    { icon: Play, label: "Tomosha" },
-                    { icon: Bookmark, label: "Saqlash" },
-                    { icon: Plus, label: "Ro'yxat" }
-                  ].map((btn, bIdx) => (
-                    <motion.button
-                      key={bIdx}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      transition={{ 
-                        type: "spring", 
-                        stiffness: 400, 
-                        damping: 15,
-                        delay: bIdx * 0.05 
-                      }}
-                      className="w-9 h-9 rounded-sm bg-[#8a60c2]/10 border border-[#8a60c2]/20 flex items-center justify-center transition-all duration-300 hover:bg-[#8a60c2] hover:border-[#8a60c2] hover:shadow-[0_0_15px_rgba(138,96,194,0.3)] group/btn"
-                    >
-                      <btn.icon className="w-4 h-4 text-[#8a60c2] group-hover/btn:text-white transition-all duration-300" />
-                    </motion.button>
-                  ))}
-                </motion.div>
-
-                {/* НИЖНИЙ ИНДИКАТОР АКТИВНОСТИ */}
-                <motion.div 
-                  variants={{
-                    initial: { width: 0, opacity: 0 },
-                    hover: { width: '100%', opacity: 1 }
-                  }}
-                  className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8a60c2] to-transparent z-30"
-                />
-              </motion.a>
-            ))}
-            </div>
-
-            <div className="flex justify-center mt-4">
-              <button className="px-4 py-1.5 text-[9px] font-medium uppercase tracking-widest text-gray-600 hover:text-gray-400 transition-colors duration-300">
-                Ko'proq ko'rsatish
-              </button>
-            </div>
-          </div>
-
-          {/* ПРАВАЯ КОЛОНКА */}
-          <div className="lg:col-span-4 flex flex-col gap-10">
-            
-            {/* HAFTALIK TOP */}
-            <div>
+            {/* ЛЕВАЯ КОЛОНКА (ОБНОВЛЕНИЯ) */}
+            <div className="lg:col-span-8 flex flex-col">
               <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
-                <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">Haftalik TOP</h2>
+                <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">So'nggi yangilanishlar</h2>
                 <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
                   <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
                 </a>
               </div>
+              
+              <div className="flex flex-col">
+                {/* ВЫВОДИМ 14 ЭЛЕМЕНТОВ ДЛЯ ИДЕАЛЬНОГО ВЫРАВНИВАНИЯ */}
+                {latestUpdates.slice(0, 14).map((item, index) => (
+                  <motion.a 
+                    key={item.id} 
+                    href="#" 
+                    initial="initial"
+                    whileHover="hover"
+                    className="flex items-center gap-4 py-4 px-4 rounded-md relative overflow-hidden group transition-all duration-500 bg-[#121015]/30 backdrop-blur-md border-b border-white/5 last:border-0 hover:bg-[#1a191f]/50"
+                  >
+                    <motion.div 
+                      variants={{
+                        initial: { x: '-110%', skewX: -20 },
+                        hover: { x: '-30%', skewX: -20 }
+                      }}
+                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                      className="absolute inset-0 bg-[#8a60c2]/5 pointer-events-none z-0"
+                    />
 
-              <div className="flex flex-col gap-2">
-                {topUsers.map((user, index) => {
-                  const rankConfig = rankConfigs[user.rank];
-                  const maxPoints = 15420;
-                  const progressPercent = (user.points / maxPoints) * 100;
-                  
-                  return (
-                    <div key={user.id} className="relative flex items-center gap-3 p-2.5 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] rounded-md transition-all group overflow-hidden cursor-pointer backdrop-blur-sm">
-                      <div className={`absolute left-0 top-0 bottom-0 w-[2px] transition-transform origin-center duration-500 group-hover:scale-y-100 scale-y-0
-                        ${user.rank === 'amethyst' ? 'bg-violet-400' : ''}
-                        ${user.rank === 'ruby' ? 'bg-red-400' : ''}
-                        ${user.rank === 'emerald' ? 'bg-emerald-400' : ''}
-                        ${user.rank === 'gold' ? 'bg-yellow-400' : ''}
-                        ${user.rank === 'iron' ? 'bg-gray-300' : ''}
-                        ${user.rank === 'wood' ? 'bg-amber-900' : ''}`}
+                    <motion.div 
+                      variants={{
+                        initial: { x: '-120%', skewX: -20 },
+                        hover: { x: '-50%', skewX: -20 }
+                      }}
+                      transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+                      className="absolute inset-0 bg-gradient-to-r from-[#8a60c2]/20 to-transparent pointer-events-none z-0 overflow-hidden"
+                    >
+                      <div className="absolute inset-0 cyber-noise" />
+                    </motion.div>
+
+                    <div className="pixel top-2 left-1/4" style={{ animationDelay: '0.1s' }} />
+                    <div className="pixel bottom-4 left-1/3" style={{ animationDelay: '0.4s' }} />
+                    <div className="pixel top-1/2 left-10" style={{ animationDelay: '0.7s' }} />
+
+                    <motion.div 
+                      variants={{
+                        hover: { scale: 1.05, x: 5 }
+                      }}
+                      className="relative w-[65px] h-[95px] rounded-sm overflow-hidden shrink-0 z-10 border border-white/10 shadow-2xl transition-all"
+                    >
+                      <Image src={item.img} alt={item.title} fill className="object-cover" unoptimized />
+                      <motion.div 
+                        variants={{
+                          initial: { left: '-100%' },
+                          hover: { left: '100%' }
+                        }}
+                        transition={{ duration: 0.8 }}
+                        className="absolute top-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-20"
                       />
+                    </motion.div>
 
-                      {/* ИКОНКА РАНГА */}
-                      <div className="relative w-16 h-12 shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                        <Image 
-                          src={rankConfig.imgSrc} 
-                          alt={rankConfig.name} 
-                          fill 
-                          className="object-contain drop-shadow-md" 
-                          unoptimized 
-                        />
+                    <motion.div 
+                      variants={{ hover: { x: 8 } }}
+                      className="flex-1 min-w-0 z-10 relative"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm font-black text-white uppercase tracking-tight transition-colors duration-300">
+                          {item.title}
+                        </h3>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <motion.span 
+                          whileHover={{ scale: 1.1 }}
+                          className="text-[10px] font-bold text-[#8a60c2] bg-[#8a60c2]/10 px-2 py-0.5 rounded-sm border border-[#8a60c2]/20 cursor-default"
+                        >
+                          {item.ep}
+                        </motion.span>
+                        <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">{item.type}</span>
                       </div>
 
-                      {/* АВАТАРКА ПОЛЬЗОВАТЕЛЯ */}
-                      <div className={`w-8 h-8 rounded shrink-0 border flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:scale-105 ${rankConfig.borderColor}`}>
-                        <Image 
-                          src={user.avatar} 
-                          alt={user.name} 
-                          fill 
-                          className="object-cover z-0" 
-                          unoptimized 
-                        />
-                        {/* Overlay для стиля */}
-                        <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity z-10
+                      <div className="mt-2 flex items-center gap-3">
+                        <span className="text-[9px] text-gray-600 font-mono flex items-center gap-1 group-hover:text-gray-400 transition-colors">
+                            <Clock className="w-3 h-3" /> {item.time}
+                        </span>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      variants={{
+                        initial: { opacity: 0, scale: 0.8 },
+                        hover: { opacity: 1, scale: 1 }
+                      }}
+                      transition={{ duration: 0.2 }}
+                      className="flex items-center gap-2 z-20 mr-2"
+                    >
+                      {[
+                        { icon: Play, label: "Tomosha" },
+                        { icon: Bookmark, label: "Saqlash" },
+                        { icon: Plus, label: "Ro'yxat" }
+                      ].map((btn, bIdx) => (
+                        <motion.button
+                          key={bIdx}
+                          whileHover={{ scale: 1.2 }}
+                          whileTap={{ scale: 0.9 }}
+                          transition={{ 
+                            type: "spring", stiffness: 400, damping: 15, delay: bIdx * 0.05 
+                          }}
+                          className="w-9 h-9 rounded-sm bg-[#8a60c2]/10 border border-[#8a60c2]/20 flex items-center justify-center transition-all duration-300 hover:bg-[#8a60c2] hover:border-[#8a60c2] hover:shadow-[0_0_15px_rgba(138,96,194,0.3)] group/btn"
+                        >
+                          <btn.icon className="w-4 h-4 text-[#8a60c2] group-hover/btn:text-white transition-all duration-300" />
+                        </motion.button>
+                      ))}
+                    </motion.div>
+
+                    <motion.div 
+                      variants={{
+                        initial: { width: 0, opacity: 0 },
+                        hover: { width: '100%', opacity: 1 }
+                      }}
+                      className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8a60c2] to-transparent z-30"
+                    />
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+
+            {/* ПРАВАЯ КОЛОНКА (ТОП И ОТЗЫВЫ) */}
+            <div className="lg:col-span-4 flex flex-col justify-between">
+              
+              {/* HAFTALIK TOP */}
+              <div>
+                <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                  <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">Haftalik TOP</h2>
+                  <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
+                    <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  {topUsers.map((user, index) => {
+                    const rankConfig = rankConfigs[user.rank];
+                    const maxPoints = 15420;
+                    const progressPercent = (user.points / maxPoints) * 100;
+                    
+                    return (
+                      <div key={user.id} className="relative flex items-center gap-3 p-3 bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] rounded-md transition-all group overflow-hidden cursor-pointer backdrop-blur-sm">
+                        <div className={`absolute left-0 top-0 bottom-0 w-[2px] transition-transform origin-center duration-500 group-hover:scale-y-100 scale-y-0
                           ${user.rank === 'amethyst' ? 'bg-violet-400' : ''}
                           ${user.rank === 'ruby' ? 'bg-red-400' : ''}
                           ${user.rank === 'emerald' ? 'bg-emerald-400' : ''}
                           ${user.rank === 'gold' ? 'bg-yellow-400' : ''}
                           ${user.rank === 'iron' ? 'bg-gray-300' : ''}
-                          ${user.rank === 'wood' ? 'bg-amber-950' : ''}`}
+                          ${user.rank === 'wood' ? 'bg-amber-900' : ''}`}
                         />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className={`text-xs font-bold truncate transition-all duration-300 ${rankConfig.color}`}>{user.name}</h4>
+                        <div className="relative w-16 h-12 shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                          <Image src={rankConfig.imgSrc} alt={rankConfig.name} fill className="object-contain drop-shadow-md" unoptimized />
                         </div>
-                        
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[9px] text-[#8a60c2] font-mono font-bold">Lv. {user.level}</span>
-                          <div className="w-1 h-1 rounded-full bg-white/10" />
-                          <span className="text-[9px] text-gray-500 font-mono tracking-wider">{user.points.toLocaleString()} XP</span>
-                        </div>
-
-                        <div className="w-full h-[3px] bg-white/5 rounded-full overflow-hidden mt-1.5">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${progressPercent}%` }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1.2, delay: index * 0.08, ease: "easeOut" }}
-                            className={`h-full rounded-full ${rankConfig.progressGradient}`}
+                        <div className={`w-8 h-8 rounded shrink-0 border flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:scale-105 ${rankConfig.borderColor}`}>
+                          <Image src={user.avatar} alt={user.name} fill className="object-cover z-0" unoptimized />
+                          <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity z-10
+                            ${user.rank === 'amethyst' ? 'bg-violet-400' : ''}
+                            ${user.rank === 'ruby' ? 'bg-red-400' : ''}
+                            ${user.rank === 'emerald' ? 'bg-emerald-400' : ''}
+                            ${user.rank === 'gold' ? 'bg-yellow-400' : ''}
+                            ${user.rank === 'iron' ? 'bg-gray-300' : ''}
+                            ${user.rank === 'wood' ? 'bg-amber-950' : ''}`}
                           />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className={`text-xs font-bold truncate transition-all duration-300 ${rankConfig.color}`}>{user.name}</h4>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[9px] text-[#8a60c2] font-mono font-bold">Lv. {user.level}</span>
+                            <div className="w-1 h-1 rounded-full bg-white/10" />
+                            <span className="text-[9px] text-gray-500 font-mono tracking-wider">{user.points.toLocaleString()} XP</span>
+                          </div>
+                          <div className="w-full h-[3px] bg-white/5 rounded-full overflow-hidden mt-1.5">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              whileInView={{ width: `${progressPercent}%` }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 1.2, delay: index * 0.08, ease: "easeOut" }}
+                              className={`h-full rounded-full ${rankConfig.progressGradient}`}
+                            />
+                          </div>
+                        </div>
+                        <div className={`text-[9px] font-mono font-bold shrink-0 ${rankConfig.color}`}>#{index + 1}</div>
                       </div>
-
-                      <div className={`text-[9px] font-mono font-bold shrink-0 ${rankConfig.color}`}>#{index + 1}</div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
 
-            {/* OXIRGI SHARHLAR */}
-            <div>
-              <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
-                <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">Oxirgi sharhlar</h2>
-                <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
-                  <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
-                </a>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {reviews.slice(0, 4).map((review) => (
-                  <a key={review.id} href="#" className="relative overflow-hidden bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-2.5 transition-all duration-300 group flex gap-3 h-[130px] backdrop-blur-md">
-                    
-                    {/* ФОНОВОЕ ИЗОБРАЖЕНИЕ (ПОСТЕР) */}
-                    <div className="relative w-[85px] h-full shrink-0 overflow-hidden rounded-md border border-white/10 group-hover:border-[#8a60c2]/50 transition-colors duration-300 z-10 shadow-md bg-[#050408]">
-                      <Image 
-                        src={review.bgImage} 
-                        alt={review.anime} 
-                        fill 
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100" 
-                        unoptimized 
-                      />
-                    </div>
-
-                    {/* КОНТЕНТ */}
-                    <div className="flex flex-col flex-1 min-w-0 relative z-10 py-0.5">
-                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">{review.type === 'review' ? 'Taqriz' : 'Sharh'}</span>
-                        <span className={`text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${review.sentiment === 'positive' ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
-                          {review.sentiment === 'positive' ? '+' : '–'}
-                        </span>
-                      </div>
-                      
-                      <h3 className="text-[11px] font-bold text-white mb-1 group-hover:text-[#8a60c2] transition-colors line-clamp-2 leading-snug">{review.title}</h3>
-                      {review.anime && <p className="text-[9px] text-[#8a60c2] font-bold mb-1 truncate">{review.anime}</p>}
-                      <p className="text-[9px] text-gray-400 leading-relaxed line-clamp-2 mb-2 flex-1">{review.preview}</p>
-                      
-                      <div className="flex items-center gap-2 text-gray-500 mt-auto">
-                        <div className="flex items-center gap-1 hover:text-[#8a60c2] transition-colors"><ThumbsUp className="w-3 h-3" /><span className="text-[9px] font-mono group-hover:text-white transition-colors">{review.likes}</span></div>
-                        <div className="flex items-center gap-1 hover:text-[#8a60c2] transition-colors"><MessageCircle className="w-3 h-3" /><span className="text-[9px] font-mono group-hover:text-white transition-colors">{review.comments}</span></div>
-                        <span className="text-[8px] font-mono ml-auto group-hover:text-gray-300 transition-colors bg-white/5 px-1.5 py-0.5 rounded border border-white/5">{review.time}</span>
-                      </div>
-                    </div>
+              {/* OXIRGI SHARHLAR (5 штук) */}
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                  <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white">Oxirgi sharhlar</h2>
+                  <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
+                    <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
                   </a>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* YANGILIKLAR */}
-            <div>
-              <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+                <div className="flex flex-col gap-4">
+                  {reviews.slice(0, 5).map((review) => (
+                    <a key={review.id} href="#" className="relative overflow-hidden bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-3 transition-all duration-300 group flex gap-3 h-[145px] backdrop-blur-md">
+                      <div className="relative w-[95px] h-full shrink-0 overflow-hidden rounded-md border border-white/10 group-hover:border-[#8a60c2]/50 transition-colors duration-300 z-10 shadow-md bg-[#050408]">
+                        <Image src={review.bgImage} alt={review.anime} fill className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100" unoptimized />
+                      </div>
+                      <div className="flex flex-col flex-1 min-w-0 relative z-10 py-0.5">
+                        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                          <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">{review.type === 'review' ? 'Taqriz' : 'Sharh'}</span>
+                          <span className={`text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${review.sentiment === 'positive' ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+                            {review.sentiment === 'positive' ? '+' : '–'}
+                          </span>
+                        </div>
+                        <h3 className="text-xs font-bold text-white mb-1.5 group-hover:text-[#8a60c2] transition-colors line-clamp-2 leading-snug">{review.title}</h3>
+                        {review.anime && <p className="text-[9px] text-[#8a60c2] font-bold mb-1.5 truncate">{review.anime}</p>}
+                        <p className="text-[10px] text-gray-400 leading-relaxed line-clamp-2 mb-2 flex-1">{review.preview}</p>
+                        <div className="flex items-center gap-3 text-gray-500 mt-auto">
+                          <div className="flex items-center gap-1 hover:text-[#8a60c2] transition-colors"><ThumbsUp className="w-3.5 h-3.5" /><span className="text-[10px] font-mono group-hover:text-white transition-colors">{review.likes}</span></div>
+                          <div className="flex items-center gap-1 hover:text-[#8a60c2] transition-colors"><MessageCircle className="w-3.5 h-3.5" /><span className="text-[10px] font-mono group-hover:text-white transition-colors">{review.comments}</span></div>
+                          <span className="text-[9px] font-mono ml-auto group-hover:text-gray-300 transition-colors bg-white/5 px-2 py-0.5 rounded border border-white/5">{review.time}</span>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          {/* ==================================================== */}
+          {/* РЯД 2: ТЕМЫ ФОРУМА (50%) + БАННЕР ПЛЕЙСХОЛДЕР (50%)  */}
+          {/* ==================================================== */}
+          <section className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
+            
+            {/* ЛЕВАЯ ПОЛОВИНА (ПОСЛЕДНИЕ ТЕМЫ ФОРУМА) */}
+            <div className="flex flex-col h-[400px] md:h-[500px]">
+              <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4 shrink-0">
                 <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white flex items-center gap-2">
-                  <Newspaper className="w-5 h-5 text-[#8a60c2]" /> Yangiliklar
+                  <MessageSquare className="w-5 h-5 text-[#8a60c2]" /> So'nggi forum mavzulari
                 </h2>
                 <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
                   <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
                 </a>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {news.slice(0, 4).map((item) => (
-                  <a key={item.id} href="#" className="bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-3 transition-all duration-300 group flex flex-col h-[240px] backdrop-blur-md">
+              {/* Лента со скроллом */}
+              <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-2 pb-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#8a60c2]/50 hover:[&::-webkit-scrollbar-thumb]:bg-[#8a60c2] [&::-webkit-scrollbar-thumb]:rounded-full">
+                {forumTopics.map((topic) => (
+                  <a key={topic.id} href="#" className="flex items-center gap-4 bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/30 rounded-xl p-3.5 transition-all duration-300 group backdrop-blur-md shrink-0">
                     
-                    {/* ФОТО НОВОСТИ */}
-                    <div className="relative w-full h-[90px] mb-3 rounded-md overflow-hidden shrink-0 border border-white/5 group-hover:border-[#8a60c2]/30 transition-colors">
-                      <Image src={item.img} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out" unoptimized />
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-white/10 transition-colors ${topic.bg}`}>
+                      <Hash className={`w-4 h-4 ${topic.color}`} />
                     </div>
 
-                    <span className="text-[7px] font-bold uppercase tracking-widest text-[#8a60c2]/70 mb-1 block">{item.source}</span>
-                    <h3 className="text-[10px] font-bold text-white mb-1.5 group-hover:text-[#8a60c2] transition-colors line-clamp-2 leading-snug flex-1">{item.title}</h3>
-                    <p className="text-[8px] text-gray-500 leading-relaxed line-clamp-2 mb-2">{item.preview}</p>
-                    <span className="text-[8px] text-gray-600 font-mono mt-auto">{item.time}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded border border-white/10 ${topic.color} ${topic.bg}`}>
+                          {topic.tag}
+                        </span>
+                      </div>
+                      <h3 className="text-xs font-bold text-white mb-1.5 group-hover:text-[#8a60c2] transition-colors truncate">{topic.title}</h3>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1"><User className="w-3 h-3" /> {topic.author}</span>
+                        <span className="text-[9px] text-gray-600 font-mono flex items-center gap-1"><Clock className="w-3 h-3" /> {topic.time}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1.5 shrink-0 pl-2">
+                      <div className="flex items-center gap-1.5 text-gray-500 group-hover:text-[#8a60c2] transition-colors">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-mono font-bold text-white">{topic.replies}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Eye className="w-3 h-3" />
+                        <span className="text-[9px] font-mono">{topic.views}</span>
+                      </div>
+                    </div>
+
                   </a>
                 ))}
               </div>
             </div>
 
-          </div>
-        </section>
+            {/* ПРАВАЯ ПОЛОВИНА (БАННЕР ПЛЕЙСХОЛДЕР) */}
+            <div className="flex flex-col h-[400px] md:h-[500px]">
+              <div className="flex items-center justify-between mb-6 border-b border-transparent pb-4 shrink-0 opacity-0 hidden md:flex">
+                <h2 className="text-xl font-black">Spacer</h2>
+              </div>
+              
+              {/* Контейнер баннера заполняет всю доступную высоту flex-1 */}
+              <div className="flex-1 w-full bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-dashed border-white/10 hover:border-[#8a60c2]/40 rounded-xl flex flex-col items-center justify-center backdrop-blur-md transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                 <div className="absolute inset-0 bg-gradient-to-br from-[#8a60c2]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                 <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-[#8a60c2] group-hover:bg-[#8a60c2]/10 transition-all duration-300 mb-4 relative z-10 shadow-lg">
+                    <Plus className="w-6 h-6" />
+                 </div>
+                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400 group-hover:text-white transition-colors relative z-10">
+                   Katta Banner
+                 </span>
+                 <span className="text-[10px] text-gray-600 font-mono mt-2 relative z-10 group-hover:text-[#8a60c2]/70 transition-colors text-center px-4 max-w-xs">
+                   Bu yerda sizning gorizontal reklamangiz yoki maxsus rasm bo'lishi mumkin
+                 </span>
+              </div>
+            </div>
+
+          </section>
+
+          {/* ==================================================== */}
+          {/* РЯД 3: НОВОСТИ (На всю ширину контейнера, 2 ряда по 3) */}
+          {/* ==================================================== */}
+          <section className="w-full pt-4">
+            <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
+              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter text-white flex items-center gap-2">
+                <Newspaper className="w-5 h-5 text-[#8a60c2]" /> Yangiliklar
+              </h2>
+              <a href="#" className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-white transition">
+                <span>Barchasi</span> <ChevronRightIcon className="w-3 h-3" />
+              </a>
+            </div>
+
+            {/* Сетка: на мобилках 1 колонка, на планшетах 2, на ПК 3 колонки */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {news.map((item) => (
+                <a key={item.id} href="#" className="bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-xl p-4 transition-all duration-300 group flex flex-col h-auto min-h-[300px] backdrop-blur-md">
+                  
+                  {/* УВЕЛИЧЕННАЯ ОБЛОЖКА */}
+                  <div className="relative w-full h-[180px] md:h-[200px] mb-4 rounded-lg overflow-hidden shrink-0 border border-white/5 group-hover:border-[#8a60c2]/30 transition-colors">
+                    <Image src={item.img} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" unoptimized />
+                  </div>
+
+                  <div className="flex flex-col flex-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8a60c2]/80 mb-2 block truncate">{item.source}</span>
+                    <h3 className="text-sm md:text-base font-bold text-white mb-2 group-hover:text-[#8a60c2] transition-colors line-clamp-2 leading-snug">{item.title}</h3>
+                    <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 mb-4 flex-1">{item.preview}</p>
+                    <span className="text-[10px] text-gray-600 font-mono mt-auto flex items-center gap-1.5"><Clock className="w-3 h-3" /> {item.time}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+
+        </div>
 
       </main>
 
