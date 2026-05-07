@@ -703,23 +703,27 @@ export default function PremiumDashboardHomePage() {
                 <div className="flex flex-col gap-4">
                   {reviews.slice(0, 5).map((review) => (
                     <a key={review.id} href="#" className="relative overflow-hidden bg-[#121015]/40 hover:bg-[#1a191f]/60 border border-white/5 hover:border-[#8a60c2]/40 rounded-lg p-3 transition-all duration-300 group flex gap-3 h-[145px] backdrop-blur-md">
+                      
+                      {/* СЕТКА ИЗ ТОЧЕК НА ФОНЕ (ДЛЯ ДИЗАЙНА) */}
+                      <div className="absolute inset-0 z-0 opacity-[0.08] group-hover:opacity-20 transition-all duration-500 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(138,96,194, 0.8) 1.5px, transparent 1.5px)', backgroundSize: '14px 14px' }} />
+
                       <div className="relative w-[95px] h-full shrink-0 overflow-hidden rounded-md border border-white/10 group-hover:border-[#8a60c2]/50 transition-colors duration-300 z-10 shadow-md bg-[#050408]">
                         <Image src={review.bgImage} alt={review.anime} fill className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100" unoptimized />
                       </div>
                       <div className="flex flex-col flex-1 min-w-0 relative z-10 py-0.5">
                         <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                          <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">{review.type === 'review' ? 'Taqriz' : 'Sharh'}</span>
-                          <span className={`text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${review.sentiment === 'positive' ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+                          <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 bg-black/40 px-1.5 py-0.5 rounded border border-white/10 backdrop-blur-sm">{review.type === 'review' ? 'Taqriz' : 'Sharh'}</span>
+                          <span className={`text-[7px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border backdrop-blur-sm ${review.sentiment === 'positive' ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
                             {review.sentiment === 'positive' ? '+' : '–'}
                           </span>
                         </div>
-                        <h3 className="text-xs font-bold text-white mb-1.5 group-hover:text-[#8a60c2] transition-colors line-clamp-2 leading-snug">{review.title}</h3>
+                        <h3 className="text-xs font-bold text-white mb-1.5 group-hover:text-[#8a60c2] transition-colors line-clamp-2 leading-snug drop-shadow-md">{review.title}</h3>
                         {review.anime && <p className="text-[9px] text-[#8a60c2] font-bold mb-1.5 truncate">{review.anime}</p>}
-                        <p className="text-[10px] text-gray-400 leading-relaxed line-clamp-2 mb-2 flex-1">{review.preview}</p>
+                        <p className="text-[10px] text-gray-400 leading-relaxed line-clamp-2 mb-2 flex-1 drop-shadow-sm">{review.preview}</p>
                         <div className="flex items-center gap-3 text-gray-500 mt-auto">
                           <div className="flex items-center gap-1 hover:text-[#8a60c2] transition-colors"><ThumbsUp className="w-3.5 h-3.5" /><span className="text-[10px] font-mono group-hover:text-white transition-colors">{review.likes}</span></div>
                           <div className="flex items-center gap-1 hover:text-[#8a60c2] transition-colors"><MessageCircle className="w-3.5 h-3.5" /><span className="text-[10px] font-mono group-hover:text-white transition-colors">{review.comments}</span></div>
-                          <span className="text-[9px] font-mono ml-auto group-hover:text-gray-300 transition-colors bg-white/5 px-2 py-0.5 rounded border border-white/5">{review.time}</span>
+                          <span className="text-[9px] font-mono ml-auto group-hover:text-gray-300 transition-colors bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded border border-white/5">{review.time}</span>
                         </div>
                       </div>
                     </a>
@@ -790,16 +794,24 @@ export default function PremiumDashboardHomePage() {
                 <h2 className="text-xl font-black">Spacer</h2>
               </div>
               
-              {/* Контейнер баннера с изображением banner.png */}
-              <a href="#" className="flex-1 w-full rounded-xl flex flex-col items-center justify-center transition-all duration-300 group cursor-pointer relative overflow-hidden border border-white/5 hover:border-[#8a60c2]/40 shadow-xl">
+              {/* Контейнер баннера с заливкой и PNG поверх */}
+              <a href="#" className="flex-1 w-full bg-[#1A1122] rounded-xl flex flex-col items-center justify-center transition-all duration-500 group cursor-pointer relative overflow-hidden border border-white/5 shadow-xl">
+                 
+                 {/* Эффект тусклого белого залива при наведении */}
+                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+                 
                  <Image 
                    src="/images/banner.png" 
                    alt="Reklama Banneri" 
                    fill 
-                   className="object-contain group-hover:scale-105 transition-transform duration-700 ease-out" 
+                   style={{
+                     objectFit: 'contain', 
+                     transform: 'scale(1.2)', 
+                     objectPosition: '50% 50%' 
+                   }}
+                   className="relative z-10 transition-all duration-500 pointer-events-none" 
                    unoptimized 
                  />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-50 group-hover:opacity-20 transition-opacity duration-500" />
               </a>
             </div>
 
