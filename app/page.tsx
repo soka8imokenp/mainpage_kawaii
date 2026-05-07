@@ -97,7 +97,7 @@ const reviews = [
   {
     id: 2, type: 'review' as const, sentiment: 'positive' as const,
     title: 'Eng buyuk anime #2',
-    anime: 'Shamol vodiysining Navsikasi / 風の谷のナウシカ',
+    anime: 'Shamol vodiysining Navsikasi / 風の谷のナウシка',
     preview: '"Kaliostro qal\'asi" ustida ishni tugatgandan so\'ng, (Seriya...)',
     likes: 85, comments: 5, time: '14 soat oldin',
     bgImage: '/images/navsikaya.jpg'
@@ -293,7 +293,145 @@ const AccordionCard = memo(function AccordionCard({ anime, idx, isActive, onActi
 });
 
 // ============================================================
-// ГЛАВНЫЙ КОМПОНЕНТ
+// КОМПОНЕНТ TYPEWRITER (Чистый белый текст без свечения)
+// ============================================================
+const TypewriterText = ({ text }: { text: string }) => {
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+        exit: { opacity: 0, transition: { duration: 0.5 } }
+      }}
+      className="flex text-[50px] md:text-[110px] font-black uppercase tracking-widest text-white leading-none"
+    >
+      {text.split('').map((char, idx) => (
+        <motion.span
+          key={idx}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1 }
+          }}
+        >
+          {char === ' ' ? '\u00A0' : char}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+};
+
+// ============================================================
+// ГЛАВНЫЙ АВТО-БАННЕР С ПЛАВНЫМ ПЕРЕХОДОМ
+// ============================================================
+const AutoHeroBanner = ({ className }: { className?: string }) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    { id: 0, img: '/images/banner.png', type: 'main' },
+    { id: 1, img: '/images/banner1.png', type: 'text', text: 'anime' },
+    { id: 2, img: '/images/banner2.png', type: 'text', text: 'manga' },
+    { id: 3, img: '/images/banner3.png', type: 'text', text: 'forum' }
+  ];
+
+  useEffect(() => {
+    const slideDuration = currentSlide === 0 ? 6000 : 3500;
+    const timer = setTimeout(() => {
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, slideDuration);
+    
+    return () => clearTimeout(timer);
+  }, [currentSlide, slides.length]);
+
+  const activeSlide = slides[currentSlide];
+
+  return (
+    <div className={`relative overflow-hidden rounded-2xl border border-white/5 shadow-2xl bg-black ${className}`}>
+      
+      {/* СТАТИЧНЫЙ ФОН */}
+      <div className="absolute inset-0 z-0">
+        <Image 
+          src="/images/bannerbg.png" 
+          alt="Banner Background" 
+          fill 
+          className="object-cover opacity-60" 
+          unoptimized 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+      </div>
+
+      {/* МЕНЯЮЩИЕСЯ КАРТИНКИ ПЕРСОНАЖЕЙ (Кроссфейд) */}
+      <div className="absolute inset-0 z-10 pointer-events-none origin-bottom">
+        <AnimatePresence mode="popLayout">
+          <motion.div
+            key={activeSlide.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <Image 
+              src={activeSlide.img} 
+              alt={`Slide ${activeSlide.id}`} 
+              fill 
+              style={{ objectFit: 'contain', objectPosition: 'bottom center' }}
+              unoptimized 
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* ТЕКСТОВОЙ СЛОЙ */}
+      <div className="absolute inset-0 z-20 flex items-end p-8 md:px-16 pb-16 md:pb-12 pointer-events-none">
+        <AnimatePresence mode="wait">
+          {activeSlide.type === 'main' ? (
+            <motion.div
+              key="main-slide"
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="flex flex-col w-full"
+            >
+              <h2 className="text-[70px] md:text-[130px] font-black tracking-tighter text-white drop-shadow-2xl leading-none">
+                KAWAII
+              </h2>
+              <div className="flex flex-col gap-4 mt-4 md:mt-8">
+                <div className="flex items-center gap-3 text-white drop-shadow-md">
+                  <Send className="w-5 h-5 md:w-6 md:h-6 text-[#8a60c2]" />
+                  <span className="text-sm md:text-base font-bold tracking-widest">kawaii_uz_official</span>
+                </div>
+                <div className="flex items-center gap-3 text-white drop-shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 md:w-6 md:h-6 text-[#8a60c2]">
+                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                  </svg>
+                  <span className="text-sm md:text-base font-bold tracking-widest">kawaii_uz_official</span>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key={`typewriter-slide-${activeSlide.id}`} 
+              className="w-full flex justify-center mb-2 md:mb-0"
+            >
+              <TypewriterText text={activeSlide.text!} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+    </div>
+  );
+};
+
+
+// ============================================================
+// ГЛАВНЫЙ КОМПОНЕНТ СТРАНИЦЫ
 // ============================================================
 export default function PremiumDashboardHomePage() {
   const [activeIdx, setActiveIdx] = useState(2);
@@ -301,9 +439,6 @@ export default function PremiumDashboardHomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'kun' | 'hafta' | 'oy'>('kun');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  // Состояние для клика по мобильному баннеру
-  const [isBannerClicked, setIsBannerClicked] = useState(false);
 
   const continueWatchingRef = useRef<HTMLDivElement>(null);
 
@@ -313,7 +448,6 @@ export default function PremiumDashboardHomePage() {
 
   const currentFilterLabel = filterOptions.find(f => f.key === activeFilter)?.label || 'Kun davomida';
 
-  // ФУНКЦИИ РЕНДЕРА ДЛЯ КОМПОНЕНТОВ
   const renderUpdates = (limit = 14) => (
     <div className="flex flex-col">
       {latestUpdates.slice(0, limit).map((item) => (
@@ -379,22 +513,19 @@ export default function PremiumDashboardHomePage() {
     </div>
   );
 
-  // ПЬЕДЕСТАЛ ТОП-3 ДЛЯ МОБИЛЬНОЙ ВЕРСИИ
   const renderMobileTopUsers = () => {
     const top3 = topUsers.slice(0, 3);
     const rest = topUsers.slice(3, 10);
-    const pedestal = [top3[1], top3[0], top3[2]]; // 2-е место, 1-е место, 3-е место
+    const pedestal = [top3[1], top3[0], top3[2]];
 
     return (
       <div className="flex flex-col gap-6">
-        {/* Пьедестал с выравниванием по низу (items-end) */}
         <div className="flex items-end justify-center gap-2 pt-10">
           {pedestal.map((user) => {
             const rankConfig = rankConfigs[user.rank];
             const isFirst = user.id === top3[0].id;
             const isSecond = user.id === top3[1].id;
             
-            // Задаем высоту колонок (разная)
             const heightClass = isFirst ? 'h-[165px]' : isSecond ? 'h-[150px]' : 'h-[145px]';
             const placeNum = isFirst ? '1' : isSecond ? '2' : '3';
             
@@ -405,11 +536,10 @@ export default function PremiumDashboardHomePage() {
               : 'bg-amber-700 text-amber-100 shadow-[0_0_10px_rgba(180,83,9,0.5)]';
 
             return (
-              <div key={user.id} className={`relative flex flex-col items-center w-[32%] bg-[#111] border border-white/5 rounded-t-xl pb-3 px-1 ${heightClass}`}>
+              <div key={user.id} className={`relative flex flex-col items-center w-[32%] bg-[#111] border border-white/5 rounded-t-xl pb-3 px-1 cursor-pointer ${heightClass}`}>
                 <div className={`absolute inset-0 opacity-[0.03] rounded-t-xl ${rankConfig.bgRank}`} />
                 <div className={`absolute top-0 w-full h-[2px] ${rankConfig.progressGradient}`} />
 
-                {/* Аватарка (Всегда торчит сверху из-за абсолюта) */}
                 <div className={`absolute -top-8 w-14 h-14 rounded-full border-[2px] flex items-center justify-center bg-black shadow-lg ${rankConfig.borderColor}`}>
                   <Image src={user.avatar} alt={user.name} fill className="object-cover rounded-full z-0 p-[2px]" unoptimized />
                   <div className={`absolute -bottom-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black z-20 ${badgeColors}`}>
@@ -417,18 +547,10 @@ export default function PremiumDashboardHomePage() {
                   </div>
                 </div>
 
-                {/* ЗНАЧОК РАНГА (Прижимаем к низу через mt-auto) */}
-                <div 
-                  className="relative shrink-0 flex items-center justify-center z-10 mt-auto"
-                  style={{
-                    width: '55px',       // <-- МЕНЯЙ ШИРИНУ ЗДЕСЬ 
-                    height: '55px',      // <-- МЕНЯЙ ВЫСОТУ ЗДЕСЬ
-                  }}
-                >
+                <div className="relative shrink-0 flex items-center justify-center z-10 mt-auto" style={{ width: '55px', height: '55px' }}>
                   <Image src={rankConfig.imgSrc} alt={rankConfig.name} fill className="object-contain drop-shadow-md" unoptimized />
                 </div>
 
-                {/* ТЕКСТ (Всегда сразу под значком) */}
                 <div className="flex flex-col items-center mt-1 z-10 w-full px-1">
                   <span className={`text-[10px] font-bold truncate w-full text-center ${rankConfig.color}`}>{user.name}</span>
                   <span className="text-[9px] text-gray-500 font-mono mt-0.5">{user.points.toLocaleString()} XP</span>
@@ -438,13 +560,12 @@ export default function PremiumDashboardHomePage() {
           })}
         </div>
 
-        {/* Список 4-10 */}
         <div className="flex flex-col gap-2.5">
           {rest.map((user, index) => {
             const rankConfig = rankConfigs[user.rank];
             const actualIndex = index + 4; 
             return (
-              <div key={user.id} className="relative flex items-center gap-3 p-3 bg-[#111] border border-white/5 rounded-xl transition-all overflow-hidden">
+              <div key={user.id} className="relative flex items-center gap-3 p-3 bg-[#111] border border-white/5 rounded-xl transition-all overflow-hidden cursor-pointer">
                 <div className={`absolute left-0 top-0 bottom-0 w-[2px] ${user.rank === 'amethyst' ? 'bg-violet-400' : user.rank === 'ruby' ? 'bg-red-400' : user.rank === 'emerald' ? 'bg-emerald-400' : user.rank === 'gold' ? 'bg-yellow-400' : user.rank === 'iron' ? 'bg-gray-300' : 'bg-amber-900'}`} />
                 <div className="text-[11px] font-mono font-bold text-gray-600 w-4 text-center">{actualIndex}</div>
                 
@@ -461,15 +582,8 @@ export default function PremiumDashboardHomePage() {
                   </div>
                 </div>
                 
-                {/* ЗНАЧОК РАНГА В СПИСКЕ */}
                 <div className="flex flex-col items-end shrink-0 pr-1">
-                   <div 
-                     className="relative flex items-center justify-center"
-                     style={{
-                       width: '45px',       // <-- МЕНЯЙ ШИРИНУ ЗДЕСЬ 
-                       height: '45px',      // <-- МЕНЯЙ ВЫСОТУ ЗДЕСЬ 
-                     }}
-                   >
+                   <div className="relative flex items-center justify-center" style={{ width: '45px', height: '45px' }}>
                      <Image src={rankConfig.imgSrc} alt={rankConfig.name} fill className="object-contain" unoptimized />
                    </div>
                 </div>
@@ -485,7 +599,6 @@ export default function PremiumDashboardHomePage() {
     <div className="grid grid-cols-2 lg:flex lg:flex-col gap-3 lg:gap-4">
       {reviews.slice(0, limit).map((review) => (
         <a key={review.id} href="#" className="relative overflow-hidden bg-[#111] lg:bg-[#121015]/40 hover:bg-[#161616] lg:hover:bg-[#1a191f]/60 border border-transparent lg:border-white/5 lg:hover:border-[#8a60c2]/40 rounded-xl p-2.5 lg:p-3 transition-all duration-300 group flex flex-col lg:flex-row gap-3 h-auto lg:h-[145px] lg:backdrop-blur-md">
-          {/* СЕТКА С ТОЧКАМИ НА ФОНЕ (ДЛЯ ДИЗАЙНА) */}
           <div className="absolute inset-0 z-0 opacity-[0.05] group-hover:opacity-[0.15] transition-all duration-500 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(138,96,194, 0.8) 1.5px, transparent 1.5px)', backgroundSize: '14px 14px' }} />
 
           <div className="relative w-full h-[90px] lg:w-[95px] lg:h-full shrink-0 overflow-hidden rounded-md border border-white/5 lg:border-white/10 group-hover:border-[#8a60c2]/50 transition-colors duration-300 z-10 bg-black">
@@ -605,74 +718,10 @@ export default function PremiumDashboardHomePage() {
           ))}
         </div>
 
-        {/* МОБИЛЬНЫЙ БАННЕР С АНИМАЦИЕЙ КЛИКА */}
-        <motion.div 
-          onClick={() => setIsBannerClicked(!isBannerClicked)}
-          animate={{ backgroundColor: isBannerClicked ? '#8a60c2' : '#1A1122' }}
-          className="flex md:hidden h-[50vh] w-full rounded-2xl relative overflow-hidden shadow-xl border border-white/5 active:scale-[0.98] transition-transform cursor-pointer mt-2"
-        >
-          {/* Изображение маскота прижатое к низу */}
-          <motion.div 
-            animate={{ 
-              x: isBannerClicked ? '25%' : '0%', 
-              opacity: isBannerClicked ? 0.3 : 1,
-              scale: isBannerClicked ? 1.1 : 1.25 // Увеличено
-            }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="absolute inset-0 origin-bottom pointer-events-none"
-          >
-            <Image 
-              src="/images/banner.png" 
-              alt="Reklama Banneri" 
-              fill 
-              style={{ objectFit: 'contain', objectPosition: 'bottom center' }}
-              className="relative z-10" 
-              unoptimized 
-            />
-          </motion.div>
-
-          {/* Анимация текста при клике */}
-          <AnimatePresence>
-            {isBannerClicked && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col justify-center px-6 z-20"
-              >
-                <motion.h2 
-                  initial={{ x: -40, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 20 }}
-                  className="text-6xl font-black tracking-tighter text-black"
-                >
-                  KAWAII
-                </motion.h2>
-                
-                <motion.div 
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex flex-col gap-3 mt-4"
-                >
-                  <a href="#" className="flex items-center gap-2.5 text-black hover:opacity-70 transition-opacity">
-                    <Send className="w-5 h-5" />
-                    <span className="text-sm font-bold tracking-widest">kawaii_uz_official</span>
-                  </a>
-                  {/* ИСПОЛЬЗУЕМ ВСТРОЕННЫЙ SVG ВМЕСТО ПРОБЛЕМНОГО ИМПОРТА */}
-                  <a href="#" className="flex items-center gap-2.5 text-black hover:opacity-70 transition-opacity">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                      <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-                    </svg>
-                    <span className="text-sm font-bold tracking-widest">kawaii_uz_official</span>
-                  </a>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        {/* АВТО-БАННЕР ДЛЯ МОБИЛОК */}
+        <div className="md:hidden mt-2 w-full">
+          <AutoHeroBanner className="h-[45vh] w-full" />
+        </div>
 
         {/* DAVOM ETTIRISH */}
         <section className="mt-8 md:mt-20 w-full">
@@ -704,7 +753,7 @@ export default function PremiumDashboardHomePage() {
           </div>
         </section>
 
-        {/* HOZIR KO'RILYAPTI */}
+        {/* HOZIR KO'RILYAPTI (Мобильный Свайп / ПК Сетка) */}
         <section className="mt-8 md:mt-24 w-full">
           <div className="flex items-center justify-between mb-4 md:mb-8">
             <h2 className="text-xl md:text-3xl font-black uppercase tracking-tighter text-white">Hozir ko'rilyapti</h2>
@@ -731,13 +780,13 @@ export default function PremiumDashboardHomePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-smooth w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-4 md:pb-0">
             {[
               { title: 'Yakunlangan', items: nowWatching.completed },
               { title: 'Davom etmoqda', items: nowWatching.ongoing },
               { title: 'To\'liq metrajli', items: nowWatching.movies }
             ].map((col, i) => (
-              <div key={i} className="w-full">
+              <div key={i} className="w-[85%] md:w-full shrink-0 snap-start md:shrink-0 flex flex-col">
                 <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div className="w-1 h-4 md:h-5 bg-[#8a60c2] rounded-full" />
                   <h3 className="text-xs md:text-sm font-black uppercase tracking-wider text-white">{col.title}</h3>
@@ -803,10 +852,10 @@ export default function PremiumDashboardHomePage() {
             </div>
             <div className="flex flex-col h-[500px]">
               <div className="flex items-center justify-between mb-6 border-b border-transparent pb-4 shrink-0 opacity-0"><h2 className="text-xl font-black">Spacer</h2></div>
-              <a href="#" className="flex-1 w-full bg-[#1A1122] rounded-xl flex flex-col items-center justify-center transition-all duration-500 group cursor-pointer relative overflow-hidden border border-white/5 shadow-xl">
-                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
-                 <Image src="/images/banner.png" alt="Reklama Banneri" fill style={{ objectFit: 'contain', transform: 'scale(1.2)', objectPosition: '50% 50%' }} className="relative z-10 transition-all duration-500 pointer-events-none p-4" unoptimized />
-              </a>
+              
+              {/* АВТО-БАННЕР ДЛЯ ПК */}
+              <AutoHeroBanner className="flex-1 w-full" />
+              
             </div>
           </section>
 
@@ -865,7 +914,7 @@ export default function PremiumDashboardHomePage() {
 
       </main>
 
-      {/* FOOTER (Скрыт на мобильных устройствах через класс hidden md:block) */}
+      {/* FOOTER */}
       <footer className="hidden md:block bg-black/40 backdrop-blur-xl w-full pt-10 pb-[100px] md:pb-10 md:pt-20 border-t border-white/5 mt-10 relative z-10">
         <div className="max-w-7xl mx-auto px-5">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-16 text-center md:text-left">
@@ -900,7 +949,6 @@ export default function PremiumDashboardHomePage() {
         <a href="#" className="flex flex-col items-center gap-[4px] text-gray-500 hover:text-white transition group w-[15%]"><Bookmark className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide">Saqlanganlar</span></a>
         <a href="manga_catalog.html" className="flex flex-col items-center gap-[4px] text-gray-500 hover:text-white transition group w-[15%]"><Layers className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide">Katalog</span></a>
         
-        {/* КНОПКА С ЛОГОТИПОМ ПО ЦЕНТРУ */}
         <a href="#" className="flex flex-col items-center justify-center relative w-[20%] transform -translate-y-2">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.5)] overflow-hidden relative border border-[#222]">
              <Image src="/images/logo.jpg" alt="KawaiiUZ Logo" fill className="object-cover" unoptimized />
