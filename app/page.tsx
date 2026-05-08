@@ -448,35 +448,57 @@ export default function PremiumDashboardHomePage() {
 
   const currentFilterLabel = filterOptions.find(f => f.key === activeFilter)?.label || 'Kun davomida';
 
+  // ИЗМЕНЕНИЕ: Заменены framer-motion анимации на чистый CSS (Tailwind lg:group-hover)
   const renderUpdates = (limit = 14) => (
     <div className="flex flex-col">
       {latestUpdates.slice(0, limit).map((item) => (
-        <motion.a 
-          key={item.id} href="#" initial="initial" whileHover="hover"
-          className="flex items-center gap-4 py-3.5 lg:py-4 px-3 lg:px-4 rounded-md relative overflow-hidden group transition-all duration-500 bg-transparent lg:bg-[#121015]/30 lg:backdrop-blur-md border-b border-[#1c1c1e] lg:border-white/5 last:border-0 hover:bg-[#111] lg:hover:bg-[#1a191f]/50"
+        <a 
+          key={item.id} href="#"
+          className="flex items-center gap-4 py-3.5 lg:py-4 px-3 lg:px-4 rounded-md relative overflow-hidden group transition-all duration-500 bg-transparent lg:bg-[#121015]/30 lg:backdrop-blur-md border-b border-[#1c1c1e] lg:border-white/5 last:border-0 lg:hover:bg-[#1a191f]/50"
         >
-          <motion.div variants={{ initial: { x: '-110%', skewX: -20 }, hover: { x: '-30%', skewX: -20 } }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="absolute inset-0 bg-[#8a60c2]/5 pointer-events-none z-0" />
-          <motion.div variants={{ initial: { x: '-120%', skewX: -20 }, hover: { x: '-50%', skewX: -20 } }} transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }} className="absolute inset-0 bg-gradient-to-r from-[#8a60c2]/20 to-transparent pointer-events-none z-0 overflow-hidden"><div className="absolute inset-0 cyber-noise" /></motion.div>
-          <div className="pixel top-2 left-1/4" style={{ animationDelay: '0.1s' }} /><div className="pixel bottom-4 left-1/3" style={{ animationDelay: '0.4s' }} /><div className="pixel top-1/2 left-10" style={{ animationDelay: '0.7s' }} />
-          <motion.div variants={{ hover: { scale: 1.05, x: 5 } }} className="relative w-[55px] h-[80px] lg:w-[65px] lg:h-[95px] rounded-sm overflow-hidden shrink-0 z-10 border border-white/5 lg:border-white/10 shadow-lg transition-all">
+          {/* Анимация фона (ТОЛЬКО ПК) */}
+          <div className="absolute inset-0 bg-[#8a60c2]/5 pointer-events-none z-0 hidden lg:block -translate-x-[110%] -skew-x-20 group-hover:-translate-x-[30%] transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#8a60c2]/20 to-transparent pointer-events-none z-0 overflow-hidden hidden lg:block -translate-x-[120%] -skew-x-20 group-hover:-translate-x-[50%] transition-transform duration-500 ease-out delay-75">
+            <div className="absolute inset-0 cyber-noise" />
+          </div>
+
+          {/* Пиксели (ТОЛЬКО ПК) */}
+          <div className="pixel top-2 left-1/4 hidden lg:block" style={{ animationDelay: '0.1s' }} />
+          <div className="pixel bottom-4 left-1/3 hidden lg:block" style={{ animationDelay: '0.4s' }} />
+          <div className="pixel top-1/2 left-10 hidden lg:block" style={{ animationDelay: '0.7s' }} />
+
+          {/* Картинка */}
+          <div className="relative w-[55px] h-[80px] lg:w-[65px] lg:h-[95px] rounded-sm overflow-hidden shrink-0 z-10 border border-transparent lg:border-white/10 lg:shadow-lg transition-transform duration-300 lg:group-hover:scale-105 lg:group-hover:translate-x-1">
             <Image src={item.img} alt={item.title} fill className="object-cover" unoptimized />
-            <motion.div variants={{ initial: { left: '-100%' }, hover: { left: '100%' } }} transition={{ duration: 0.8 }} className="absolute top-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-20" />
-          </motion.div>
-          <motion.div variants={{ hover: { x: 8 } }} className="flex-1 min-w-0 z-10 relative">
-            <div className="flex items-center gap-2 mb-1"><h3 className="text-sm font-medium lg:font-black text-white lg:uppercase tracking-tight transition-colors duration-300 truncate lg:whitespace-normal">{item.title}</h3></div>
+            <div className="absolute top-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-20 -left-[100%] lg:group-hover:left-[100%] transition-all duration-700 hidden lg:block" />
+          </div>
+
+          {/* Текст */}
+          <div className="flex-1 min-w-0 z-10 relative transition-transform duration-300 lg:group-hover:translate-x-2">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-sm font-medium lg:font-black text-white lg:uppercase tracking-tight transition-colors duration-300 truncate lg:whitespace-normal">{item.title}</h3>
+            </div>
             <div className="flex items-center gap-2">
-              <motion.span whileHover={{ scale: 1.1 }} className="text-[9px] lg:text-[10px] font-bold text-[#8a60c2] bg-[#8a60c2]/10 px-2 py-0.5 rounded-sm border border-[#8a60c2]/20 cursor-default">{item.ep}</motion.span>
+              <span className="text-[9px] lg:text-[10px] font-bold text-[#8a60c2] bg-[#8a60c2]/10 px-2 py-0.5 rounded-sm border border-[#8a60c2]/20 cursor-default transition-transform lg:hover:scale-110">{item.ep}</span>
               <span className="text-[8px] lg:text-[9px] font-mono text-gray-500 uppercase tracking-widest">{item.type}</span>
             </div>
-            <div className="mt-1.5 flex items-center gap-3"><span className="text-[9px] text-gray-600 font-mono flex items-center gap-1 group-hover:text-gray-400 transition-colors"><Clock className="w-3 h-3" /> {item.time}</span></div>
-          </motion.div>
-          <motion.div variants={{ initial: { opacity: 0, scale: 0.8 }, hover: { opacity: 1, scale: 1 } }} transition={{ duration: 0.2 }} className="hidden lg:flex items-center gap-2 z-20 mr-2">
+            <div className="mt-1.5 flex items-center gap-3">
+              <span className="text-[9px] text-gray-600 font-mono flex items-center gap-1 lg:group-hover:text-gray-400 transition-colors"><Clock className="w-3 h-3" /> {item.time}</span>
+            </div>
+          </div>
+
+          {/* Кнопки (ТОЛЬКО ПК) */}
+          <div className="hidden lg:flex items-center gap-2 z-20 mr-2 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300">
             {[{ icon: Play }, { icon: Bookmark }, { icon: Plus }].map((btn, bIdx) => (
-              <motion.button key={bIdx} whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }} className="w-9 h-9 rounded-sm bg-[#8a60c2]/10 border border-[#8a60c2]/20 flex items-center justify-center transition-all duration-300 hover:bg-[#8a60c2] hover:border-[#8a60c2] group/btn"><btn.icon className="w-4 h-4 text-[#8a60c2] group-hover/btn:text-white transition-all" /></motion.button>
+              <button key={bIdx} className="w-9 h-9 rounded-sm bg-[#8a60c2]/10 border border-[#8a60c2]/20 flex items-center justify-center transition-all duration-300 hover:bg-[#8a60c2] hover:border-[#8a60c2] hover:scale-110 active:scale-90 group/btn">
+                <btn.icon className="w-4 h-4 text-[#8a60c2] group-hover/btn:text-white transition-all" />
+              </button>
             ))}
-          </motion.div>
-          <motion.div variants={{ initial: { width: 0, opacity: 0 }, hover: { width: '100%', opacity: 1 } }} className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8a60c2] to-transparent z-30 hidden lg:block" />
-        </motion.a>
+          </div>
+
+          {/* Линия снизу (ТОЛЬКО ПК) */}
+          <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8a60c2] to-transparent z-30 hidden lg:block w-0 group-hover:w-full transition-all duration-500 ease-out" />
+        </a>
       ))}
     </div>
   );
@@ -526,7 +548,7 @@ export default function PremiumDashboardHomePage() {
             const isFirst = user.id === top3[0].id;
             const isSecond = user.id === top3[1].id;
             
-            const heightClass = isFirst ? 'h-[165px]' : isSecond ? 'h-[150px]' : 'h-[145px]';
+            const heightClass = isFirst ? 'h-[160px]' : isSecond ? 'h-[140px]' : 'h-[120px]';
             const placeNum = isFirst ? '1' : isSecond ? '2' : '3';
             
             const badgeColors = isFirst 
@@ -736,9 +758,9 @@ export default function PremiumDashboardHomePage() {
             </div>
           </div>
 
-          <div ref={continueWatchingRef} className="flex gap-3 md:gap-6 overflow-x-auto pb-4 snap-x scroll-smooth w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div ref={continueWatchingRef} className="flex gap-3 md:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {continueWatching.map((item) => (
-              <a key={item.id} href="#" className="snap-start flex-shrink-0 w-[180px] md:w-[260px] bg-[#111] md:bg-[#121015]/40 hover:bg-[#1a1a1c] md:hover:bg-[#1a191f]/60 border border-transparent md:border-white/5 hover:border-[#8a60c2]/40 transition-all duration-300 rounded-xl md:rounded-lg p-2 md:p-2.5 flex items-center gap-3 group relative overflow-hidden md:backdrop-blur-md">
+              <a key={item.id} href="#" className="snap-start snap-always flex-shrink-0 w-[180px] md:w-[260px] bg-[#111] md:bg-[#121015]/40 hover:bg-[#1a1a1c] md:hover:bg-[#1a191f]/60 border border-transparent md:border-white/5 hover:border-[#8a60c2]/40 transition-all duration-300 rounded-xl md:rounded-lg p-2 md:p-2.5 flex items-center gap-3 group relative overflow-hidden md:backdrop-blur-md">
                 <div className="relative w-16 h-10 md:w-20 md:h-12 rounded md:rounded bg-[#0d0c10] overflow-hidden shrink-0 border border-white/5">
                   <Image src={item.img} alt={item.title} fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" unoptimized loading="lazy" sizes="80px" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"><Play className="w-3 h-3 text-white ml-0.5" fill="currentColor" /></div>
@@ -786,7 +808,7 @@ export default function PremiumDashboardHomePage() {
               { title: 'Davom etmoqda', items: nowWatching.ongoing },
               { title: 'To\'liq metrajli', items: nowWatching.movies }
             ].map((col, i) => (
-              <div key={i} className="w-[85%] md:w-full shrink-0 snap-start md:shrink-0 flex flex-col">
+              <div key={i} className="w-[85%] md:w-full shrink-0 snap-start snap-always md:shrink-0 flex flex-col">
                 <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div className="w-1 h-4 md:h-5 bg-[#8a60c2] rounded-full" />
                   <h3 className="text-xs md:text-sm font-black uppercase tracking-wider text-white">{col.title}</h3>
@@ -945,21 +967,34 @@ export default function PremiumDashboardHomePage() {
       </footer>
 
       {/* MOBILE BOTTOM NAV */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-black border-t border-[#111] flex justify-around pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] z-50">
-        <a href="#" className="flex flex-col items-center gap-[4px] text-gray-500 hover:text-white transition group w-[15%]"><Bookmark className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide">Saqlanganlar</span></a>
-        <a href="manga_catalog.html" className="flex flex-col items-center gap-[4px] text-gray-500 hover:text-white transition group w-[15%]"><Layers className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide">Katalog</span></a>
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-black border-t border-[#111] flex justify-around items-end pt-3 pb-[calc(10px+env(safe-area-inset-bottom))] z-50">
+        <a href="#" className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition group w-[15%]">
+          <Bookmark className="w-5 h-5 group-hover:text-white transition" />
+          <span className="text-[8px] font-medium tracking-wide">Saqlanganlar</span>
+        </a>
+        <a href="manga_catalog.html" className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition group w-[15%]">
+          <Layers className="w-5 h-5 group-hover:text-white transition" />
+          <span className="text-[8px] font-medium tracking-wide">Katalog</span>
+        </a>
         
-        <a href="#" className="flex flex-col items-center justify-center relative w-[20%] transform -translate-y-2">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.5)] overflow-hidden relative border border-[#222]">
-             <Image src="/images/logo.jpg" alt="KawaiiUZ Logo" fill className="object-cover" unoptimized />
+        {/* ИЗМЕНЕНИЕ: Логотип абсолютно спозиционирован. Он больше не растягивает панель по высоте. */}
+        <a href="#" className="flex flex-col items-center justify-center relative w-[20%]">
+          <div className="absolute bottom-[-22px] w-[85px] h-[85px] rounded-full overflow-hidden">
+             <Image src="/images/logo.png" alt="KawaiiUZ Logo" fill className="object-cover" unoptimized />
           </div>
         </a>
 
-        <a href="#" className="flex flex-col items-center gap-[4px] text-gray-500 hover:text-white transition group w-[15%] relative">
-          <div className="relative"><Bell className="w-5 h-5 group-hover:text-white transition" /><span className="absolute -top-1 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-black" /></div>
+        <a href="#" className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition group w-[15%] relative">
+          <div className="relative">
+            <Bell className="w-5 h-5 group-hover:text-white transition" />
+            <span className="absolute -top-1 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-black" />
+          </div>
           <span className="text-[8px] font-medium tracking-wide">Xabarlar</span>
         </a>
-        <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center gap-[4px] text-gray-500 hover:text-white transition group w-[15%]"><Menu className="w-5 h-5 group-hover:text-white transition" /><span className="text-[8px] font-medium tracking-wide">Menyu</span></button>
+        <button onClick={() => setIsMobileMenuOpen(true)} className="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition group w-[15%]">
+          <Menu className="w-5 h-5 group-hover:text-white transition" />
+          <span className="text-[8px] font-medium tracking-wide">Menyu</span>
+        </button>
       </nav>
 
     </div>
