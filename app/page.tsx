@@ -548,7 +548,7 @@ export default function PremiumDashboardHomePage() {
             const isFirst = user.id === top3[0].id;
             const isSecond = user.id === top3[1].id;
             
-            const heightClass = isFirst ? 'h-[160px]' : isSecond ? 'h-[140px]' : 'h-[120px]';
+            const heightClass = isFirst ? 'h-[165px]' : isSecond ? 'h-[150px]' : 'h-[145px]';
             const placeNum = isFirst ? '1' : isSecond ? '2' : '3';
             
             const badgeColors = isFirst 
